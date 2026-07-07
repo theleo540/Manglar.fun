@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /profile
+Disallow: /dashboard
+Disallow: /404
+
+Sitemap: https://manglar.fun/sitemap.xml

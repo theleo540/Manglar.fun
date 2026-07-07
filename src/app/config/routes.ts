@@ -6,6 +6,7 @@ export const ROUTES = {
   HOME: "home",
   PROFILE: "profile",
   DASHBOARD: "dashboard",
+  NOT_FOUND: "not-found",
 } as const;
 
 /** Unión de todas las rutas válidas de la app. */

@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { Home } from "./pages/Home";
 import { Profile } from "./pages/Profile";
 import { Dashboard } from "./pages/Dashboard";
+import { NotFound } from "./pages/NotFound";
 import { PageShell } from "./components/PageShell";
 import { useAdmin } from "./hooks/useAdmin";
 import { useSiteVisits } from "./hooks/useSiteVisits";
@@ -13,6 +14,7 @@ const ROUTE_PATHS: Record<AppRoute, string> = {
   [ROUTES.HOME]: "/",
   [ROUTES.PROFILE]: "/profile",
   [ROUTES.DASHBOARD]: "/dashboard",
+  [ROUTES.NOT_FOUND]: "/404",
 };
 
 const PATH_ROUTES: Record<string, AppRoute> = Object.fromEntries(
@@ -22,7 +24,10 @@ const PATH_ROUTES: Record<string, AppRoute> = Object.fromEntries(
 /** Lee la pestaña actual desde la URL real (ej. /dashboard) al cargar/refrescar. */
 function getPageFromUrl(): AppRoute {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
-  return PATH_ROUTES[path] ?? ROUTES.HOME;
+  // Antes cualquier ruta desconocida caía silenciosamente en Home. Ahora
+  // cae en la página 404 real, para que quede claro que esa URL no existe
+  // (en vez de aparentar que sí existe y mostrar el inicio).
+  return PATH_ROUTES[path] ?? ROUTES.NOT_FOUND;
 }
 
 export default function App() {
@@ -76,6 +81,12 @@ export default function App() {
       {page === ROUTES.DASHBOARD && isAdmin && (
         <PageShell navigate={navigate} siteVisits={siteVisits}>
           <Dashboard userMode={userMode} siteVisits={siteVisits} />
+        </PageShell>
+      )}
+
+      {page === ROUTES.NOT_FOUND && (
+        <PageShell navigate={navigate} siteVisits={siteVisits}>
+          <NotFound navigate={navigate} />
         </PageShell>
       )}
     </>
