@@ -26,8 +26,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      // Alias @ to the src directory
-      '@': path.resolve(__dirname, './src'),
+      // Alias @ to the src/app directory (igual que en el hub viejo:
+      // así @/hooks, @/config, @/services, etc. resuelven correctamente)
+      '@': path.resolve(__dirname, './src/app'),
     },
   },
 

@@ -4,8 +4,9 @@ import { Hero } from "../components/Hero";
 import { EcosystemStrip } from "../components/EcosystemStrip";
 import { SportsRow } from "../web/futbol";
 import { Footer } from "../components/Footer";
+import type { AppRoute } from "../config/routes";
 
-export function Home() {
+export function Home({ navigate }: { navigate: (route: AppRoute) => void }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export function Home() {
       className="min-h-screen bg-[#080808] text-white overflow-x-hidden"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-      <Navbar scrolled={scrolled} />
+      <Navbar scrolled={scrolled} navigate={navigate} />
       <Hero />
 
       <div className="pt-8">
