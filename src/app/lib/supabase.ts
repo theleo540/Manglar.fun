@@ -5,6 +5,7 @@
  *   import { supabase } from "@/lib/supabase";
  */
 import { createClient } from "@supabase/supabase-js";
+import { cookieStorage } from "./cookieStorage";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
@@ -21,5 +22,9 @@ export const supabase = createClient(SUPABASE_URL ?? "", SUPABASE_ANON_KEY ?? ""
     persistSession: true,    // mantiene la sesión aunque recargues
     autoRefreshToken: true,  // refresca el token antes de que expire
     detectSessionInUrl: true, // necesario para el callback OAuth de GitHub
+    // Cookie con Domain=.manglar.fun en vez de localStorage — así la
+    // sesión viaja a wc2026streams.manglar.fun y a cualquier futuro
+    // subdominio (nba.manglar.fun, etc). Ver cookieStorage.ts.
+    storage: cookieStorage,
   },
 });
