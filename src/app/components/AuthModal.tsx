@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Github, X } from "lucide-react";
 import { toast } from "sonner";
@@ -23,10 +22,10 @@ export function GoogleIcon({ className }: { className?: string }) {
  * página (no una ventana nueva del navegador). El fondo del overlay es
  * transparente a propósito — solo la tarjeta lleva blur (glass).
  *
- * GitHub, Google y correo (código de 6 dígitos vía Supabase OTP)
- * funcionan de verdad. El flujo de correo tiene dos pasos: 1) pide el
- * email y envía el código (onEmailOtpRequest), 2) pide el código y
- * confirma la sesión (onEmailOtpVerify).
+ * Hoy: GitHub funciona de verdad (Supabase OAuth). Google y el acceso
+ * por correo están listos en la UI pero todavía no conectados — el
+ * plan es que el de correo mande un código de verificación de dígitos
+ * para confirmar que eres dueño de la cuenta antes de dejarte entrar.
  */
 export function AuthModal({
   open,
@@ -35,10 +34,6 @@ export function AuthModal({
   onClose,
   onGithubLogin,
   onGoogleLogin,
-  onEmailOtpRequest,
-  onEmailOtpVerify,
-  onPasswordLogin,
-  onPasswordRegister,
 }: {
   open: boolean;
   mode: AuthMode;
@@ -46,98 +41,15 @@ export function AuthModal({
   onClose: () => void;
   onGithubLogin: () => void;
   onGoogleLogin: () => void;
-  onEmailOtpRequest: (email: string) => Promise<void>;
-  onEmailOtpVerify: (email: string, code: string) => Promise<void>;
-  onPasswordLogin: (email: string, password: string) => Promise<void>;
-  onPasswordRegister: (email: string, password: string) => Promise<void>;
 }) {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
-  const [step, setStep] = useState<"email" | "code">("email");
-  const [emailMethod, setEmailMethod] = useState<"otp" | "password">("password");
-  const [sending, setSending] = useState(false);
-  const [verifying, setVerifying] = useState(false);
 
-  // Al cerrar el modal o cambiar de modo, volvemos siempre al paso inicial
-  function resetEmailFlow() {
-    setStep("email");
-    setCode("");
-    setPassword("");
-    setSending(false);
-    setVerifying(false);
-  }
-
-  function handleClose() {
-    resetEmailFlow();
-    onClose();
-  }
-
-  function handleModeChange(newMode: AuthMode) {
-    resetEmailFlow();
-    onModeChange(newMode);
-  }
-
-  async function handleEmailSubmit(e: React.FormEvent) {
+  function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSending(true);
-    try {
-      await onEmailOtpRequest(email);
-      toast.success("Te enviamos un código de 6 dígitos a tu correo.");
-      setStep("code");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo enviar el código. Intenta de nuevo.");
-    } finally {
-      setSending(false);
-    }
+    toast.info("Acceso por correo en construcción: pronto te enviaremos un código de verificación aquí.");
   }
 
-  async function handleCodeSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setVerifying(true);
-    try {
-      await onEmailOtpVerify(email, code);
-      toast.success("¡Sesión iniciada!");
-      resetEmailFlow();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Código incorrecto o expirado.");
-    } finally {
-      setVerifying(false);
-    }
-  }
-
-  async function handleResend() {
-    setSending(true);
-    try {
-      await onEmailOtpRequest(email);
-      toast.success("Te reenviamos el código.");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo reenviar el código.");
-    } finally {
-      setSending(false);
-    }
-  }
-
-  async function handlePasswordSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSending(true);
-    try {
-      if (mode === "login") {
-        await onPasswordLogin(email, password);
-        toast.success("¡Sesión iniciada!");
-      } else {
-        await onPasswordRegister(email, password);
-        toast.success("Cuenta creada. Si te pedimos confirmar el correo, revisa tu bandeja.");
-      }
-      resetEmailFlow();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo completar la solicitud.");
-    } finally {
-      setSending(false);
-    }
-  }
-
-  return createPortal(
+  return (
     <AnimatePresence>
       {open && (
         <motion.div
@@ -146,11 +58,11 @@ export function AuthModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          onClick={handleClose}
+          onClick={onClose}
         >
           <div className="relative w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={handleClose}
+              onClick={onClose}
               className="absolute -top-3 -right-3 w-7 h-7 rounded-full bg-black/80 border border-white/15 flex items-center justify-center text-white/60 hover:text-white transition-colors z-10"
             >
               <X className="w-3.5 h-3.5" />
@@ -160,7 +72,7 @@ export function AuthModal({
               {/* tabs — siempre visibles, solo el contenido de abajo se anima */}
               <div className="flex items-center gap-1 mb-6 p-1 rounded-xl bg-black/30 border border-white/10">
                 <button
-                  onClick={() => handleModeChange("login")}
+                  onClick={() => onModeChange("login")}
                   className={cn(
                     "flex-1 py-2 rounded-lg text-sm font-medium transition-colors",
                     mode === "login" ? "bg-[#0be881] text-black font-semibold" : "text-white/50 hover:text-white"
@@ -169,7 +81,7 @@ export function AuthModal({
                   Iniciar sesión
                 </button>
                 <button
-                  onClick={() => handleModeChange("register")}
+                  onClick={() => onModeChange("register")}
                   className={cn(
                     "flex-1 py-2 rounded-lg text-sm font-medium transition-colors",
                     mode === "register" ? "bg-[#0be881] text-black font-semibold" : "text-white/50 hover:text-white"
@@ -221,134 +133,31 @@ export function AuthModal({
                     <div className="h-px flex-1 bg-white/10" />
                   </div>
 
-                  {step === "email" ? (
-                    <>
-                      <div className="flex items-center gap-1 mb-3 p-0.5 rounded-lg bg-black/20 border border-white/[0.06] w-fit">
-                        <button
-                          type="button"
-                          onClick={() => setEmailMethod("password")}
-                          className={cn(
-                            "px-3 py-1 rounded-md text-[11px] font-medium transition-colors",
-                            emailMethod === "password" ? "bg-white/10 text-white" : "text-white/35 hover:text-white/60"
-                          )}
-                        >
-                          Contraseña
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEmailMethod("otp")}
-                          className={cn(
-                            "px-3 py-1 rounded-md text-[11px] font-medium transition-colors",
-                            emailMethod === "otp" ? "bg-white/10 text-white" : "text-white/35 hover:text-white/60"
-                          )}
-                        >
-                          Código
-                        </button>
-                      </div>
-
-                      {emailMethod === "otp" ? (
-                        <>
-                          <form onSubmit={handleEmailSubmit} className="space-y-2.5">
-                            <input
-                              type="email"
-                              required
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                              placeholder="tu@correo.com"
-                              className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-[#0be881]/50 transition-colors"
-                            />
-                            <button
-                              type="submit"
-                              disabled={sending}
-                              className="w-full py-2.5 rounded-lg bg-[#0be881] text-black text-sm font-semibold hover:bg-[#0be881]/85 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                              {sending ? "Enviando..." : "Enviar código de acceso"}
-                            </button>
-                          </form>
-                          <p className="text-white/25 text-[10px] mt-3 text-center leading-relaxed">
-                            Te mandaremos un código de 6 dígitos por correo para confirmar que la cuenta es tuya.
-                          </p>
-                        </>
-                      ) : (
-                        <form onSubmit={handlePasswordSubmit} className="space-y-2.5">
-                          <input
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="tu@correo.com"
-                            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-[#0be881]/50 transition-colors"
-                          />
-                          <input
-                            type="password"
-                            required
-                            minLength={6}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Contraseña"
-                            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-[#0be881]/50 transition-colors"
-                          />
-                          <button
-                            type="submit"
-                            disabled={sending}
-                            className="w-full py-2.5 rounded-lg bg-[#0be881] text-black text-sm font-semibold hover:bg-[#0be881]/85 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                          >
-                            {sending ? "Enviando..." : mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
-                          </button>
-                        </form>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-white/50 text-xs mb-3">
-                        Enviamos un código a <span className="text-white">{email}</span>. Revisa tu bandeja (y spam).
-                      </p>
-                      <form onSubmit={handleCodeSubmit} className="space-y-2.5">
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          required
-                          maxLength={6}
-                          value={code}
-                          onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                          placeholder="123456"
-                          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-[#0be881]/50 transition-colors text-center tracking-[0.5em] font-semibold"
-                        />
-                        <button
-                          type="submit"
-                          disabled={verifying || code.length < 6}
-                          className="w-full py-2.5 rounded-lg bg-[#0be881] text-black text-sm font-semibold hover:bg-[#0be881]/85 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                          {verifying ? "Verificando..." : "Confirmar código"}
-                        </button>
-                      </form>
-                      <div className="flex items-center justify-between mt-3">
-                        <button
-                          type="button"
-                          onClick={() => setStep("email")}
-                          className="text-white/40 hover:text-white text-[11px] transition-colors"
-                        >
-                          ← Cambiar correo
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleResend}
-                          disabled={sending}
-                          className="text-[#0be881] hover:text-white text-[11px] font-medium transition-colors disabled:opacity-60"
-                        >
-                          Reenviar código
-                        </button>
-                      </div>
-                    </>
-                  )}
+                  <form onSubmit={handleEmailSubmit} className="space-y-2.5">
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="tu@correo.com"
+                      className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-[#0be881]/50 transition-colors"
+                    />
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 rounded-lg bg-[#0be881] text-black text-sm font-semibold hover:bg-[#0be881]/85 transition-colors"
+                    >
+                      {mode === "login" ? "Enviar código de acceso" : "Crear cuenta"}
+                    </button>
+                  </form>
+                  <p className="text-white/25 text-[10px] mt-3 text-center leading-relaxed">
+                    Próximamente: te mandaremos un código de dígitos por correo para confirmar que la cuenta es tuya.
+                  </p>
                 </motion.div>
               </AnimatePresence>
             </div>
           </div>
         </motion.div>
       )}
-    </AnimatePresence>,
-    document.body
+    </AnimatePresence>
   );
 }

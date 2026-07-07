@@ -8,21 +8,7 @@ import { hasPermission, PERMISSIONS, type Permission } from "@/config/permission
 import type { AdminRole } from "@/types/admin";
 
 export function useAdmin() {
-  const {
-    user,
-    role,
-    isLoggedIn,
-    isAdmin,
-    isSuperAdmin,
-    login,
-    loginGoogle,
-    loginWithEmailOtp,
-    verifyEmailOtp,
-    loginWithPassword,
-    registerWithPassword,
-    logout,
-    loading,
-  } = useAuth();
+  const { user, role, isLoggedIn, isAdmin, isSuperAdmin, login, loginGoogle, logout, loading } = useAuth();
   const { admins } = useAdminsList();
 
   // userMode solo distingue permisos de admin — un "user" logueado
@@ -40,10 +26,6 @@ export function useAdmin() {
     user,
     login,
     loginGoogle,
-    loginWithEmailOtp,
-    verifyEmailOtp,
-    loginWithPassword,
-    registerWithPassword,
     logout,
     loading,
     userMode,

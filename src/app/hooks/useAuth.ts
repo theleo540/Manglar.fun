@@ -84,52 +84,6 @@ export function useAuth() {
     });
   }
 
-  /**
-   * Paso 1 del login por correo: envía un código de 6 dígitos al email.
-   * shouldCreateUser en true permite que sirva tanto para login como
-   * para registro — si el email no existe, Supabase crea la cuenta.
-   */
-  async function loginWithEmailOtp(email: string) {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true },
-    });
-    if (error) throw error;
-  }
-
-  /**
-   * Paso 2: verifica el código que el usuario recibió por correo.
-   * Si es correcto, Supabase crea la sesión y onAuthStateChange
-   * dispara solo (ver el useEffect de arriba).
-   */
-  async function verifyEmailOtp(email: string, token: string) {
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: "email",
-    });
-    if (error) throw error;
-  }
-
-  /**
-   * Login con email + contraseña (alternativa al código de un solo uso).
-   */
-  async function loginWithPassword(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-  }
-
-  /**
-   * Registro con email + contraseña. Por defecto Supabase exige
-   * confirmar el correo (revisa Authentication → Settings → "Confirm
-   * email") antes de dejar iniciar sesión; si lo desactivas ahí, la
-   * sesión queda activa de inmediato tras registrarse.
-   */
-  async function registerWithPassword(email: string, password: string) {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
-  }
-
   async function logout() {
     await supabase.auth.signOut();
     setUser(null);
@@ -143,10 +97,6 @@ export function useAuth() {
     isSuperAdmin: user?.role === "super-admin",
     login,
     loginGoogle,
-    loginWithEmailOtp,
-    verifyEmailOtp,
-    loginWithPassword,
-    registerWithPassword,
     logout,
     loading,
   };

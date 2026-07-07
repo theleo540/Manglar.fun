@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, Eye, Github, LayoutDashboard, LogOut, Mail, Search, Shield, User, X } from "lucide-react";
+import { Bell, Eye, Github, LayoutDashboard, LogOut, Search, Shield, User, X } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useSiteSearch } from "@/hooks/useSiteSearch";
 import { fmt } from "@/utils/formatters";
@@ -7,7 +7,6 @@ import { ROUTES, type AppRoute } from "@/config/routes";
 import { ROLE_COLORS, ROLE_LABELS } from "@/constants/roles";
 import type { AdminRole } from "@/types/admin";
 import { AuthModal, GoogleIcon, type AuthMode } from "./AuthModal";
-import { profileService } from "@/services/profileService";
 
 const NAV_LINKS = [
   { label: "Inicio", href: "#inicio" },
@@ -40,50 +39,8 @@ export function Navbar({
   const [authModal, setAuthModal] = useState<{ open: boolean; mode: AuthMode }>({ open: false, mode: "login" });
   const searchBoxRef = useRef<HTMLDivElement>(null);
 
-  const {
-    user,
-    isAdmin,
-    isSuperAdmin,
-    isLoggedIn,
-    login,
-    loginGoogle,
-    loginWithEmailOtp,
-    verifyEmailOtp,
-    loginWithPassword,
-    registerWithPassword,
-    logout,
-    loading,
-  } = useAdmin();
+  const { user, isAdmin, isSuperAdmin, isLoggedIn, login, loginGoogle, logout, loading } = useAdmin();
   const { results, hasQuery } = useSiteSearch(query);
-
-  // El nombre/avatar de la sesión de Supabase Auth solo viene lleno si
-  // entraste por GitHub/Google (traen esos datos automático). Si entras
-  // por correo, esos campos vienen vacíos. El nombre y el ícono que el
-  // usuario SÍ eligió viven en la tabla `profiles`, así que los traemos
-  // aparte y les damos prioridad sobre lo que diga la sesión cruda.
-  const [ownProfile, setOwnProfile] = useState<{ name: string; avatar: string } | null>(null);
-
-  useEffect(() => {
-    if (!user) {
-      setOwnProfile(null);
-      return;
-    }
-    let cancelled = false;
-    profileService
-      .getOrCreateProfile(user.email, { name: user.name, avatar: user.avatar })
-      .then((p) => {
-        if (!cancelled) setOwnProfile({ name: p.name || user.name, avatar: p.avatar || user.avatar });
-      })
-      .catch(() => {
-        if (!cancelled) setOwnProfile(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.email]);
-
-  const displayName = ownProfile?.name || user?.name || "";
-  const displayAvatar = ownProfile?.avatar || user?.avatar || "";
 
   useEffect(() => {
     const close = () => setProfileOpen(false);
@@ -251,13 +208,13 @@ export function Navbar({
                   ? "bg-[#0be881] text-black hover:ring-2 hover:ring-[#0be881]/40"
                   : "bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"
               }`}
-              title={isLoggedIn ? displayName : "Iniciar sesión"}
+              title={isLoggedIn ? user?.name : "Iniciar sesión"}
             >
               {isLoggedIn && user ? (
-                displayAvatar ? (
-                  <img src={displayAvatar} alt={displayName} className="w-full h-full rounded-full object-cover" />
+                user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
                 ) : (
-                  (displayName || user.email).charAt(0).toUpperCase()
+                  user.name.charAt(0).toUpperCase()
                 )
               ) : (
                 <User className="w-4 h-4" />
@@ -272,7 +229,7 @@ export function Navbar({
                 {isLoggedIn && user ? (
                   <>
                     <div className="p-3 border-b border-white/8">
-                      <p className="text-white text-sm font-semibold truncate">{displayName}</p>
+                      <p className="text-white text-sm font-semibold truncate">{user.name}</p>
                       {roleForBadge ? (
                         <span
                           className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${ROLE_COLORS[roleForBadge].text} ${ROLE_COLORS[roleForBadge].bg} ${ROLE_COLORS[roleForBadge].border}`}
@@ -344,15 +301,6 @@ export function Navbar({
                       >
                         <GoogleIcon className="w-4 h-4" /> Entrar con Google
                       </button>
-                      <button
-                        onClick={() => {
-                          setProfileOpen(false);
-                          setAuthModal({ open: true, mode: "login" });
-                        }}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
-                      >
-                        <Mail className="w-4 h-4" /> Entrar con correo
-                      </button>
                     </div>
                     <button
                       onClick={() => {
@@ -382,19 +330,6 @@ export function Navbar({
         }}
         onGoogleLogin={() => {
           loginGoogle();
-          setAuthModal({ open: false, mode: authModal.mode });
-        }}
-        onEmailOtpRequest={loginWithEmailOtp}
-        onEmailOtpVerify={async (email, code) => {
-          await verifyEmailOtp(email, code);
-          setAuthModal({ open: false, mode: authModal.mode });
-        }}
-        onPasswordLogin={async (email, password) => {
-          await loginWithPassword(email, password);
-          setAuthModal({ open: false, mode: authModal.mode });
-        }}
-        onPasswordRegister={async (email, password) => {
-          await registerWithPassword(email, password);
           setAuthModal({ open: false, mode: authModal.mode });
         }}
       />

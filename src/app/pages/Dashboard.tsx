@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
-import { Users, BarChart3, Server, Edit2, Trash2, Plus, CheckCircle2, AlertCircle, Eye, Globe, UserCircle2 } from "lucide-react";
+import { Users, BarChart3, Server, Edit2, Trash2, Plus, CheckCircle2, AlertCircle, Eye, Globe } from "lucide-react";
 import type { AdminTab, UserMode, Admin } from "@/types/admin";
 import { useAdminsList } from "@/hooks/useAdminsList";
 import { useEcosystemWidgets } from "@/hooks/useEcosystemWidgets";
@@ -9,9 +9,6 @@ import { ECOSYSTEM_PROJECTS } from "@/config/ecosystem";
 import { fmt } from "@/utils/formatters";
 import { DASHBOARD_TAB_IDS, DASHBOARD_TAB_LABELS } from "@/constants/dashboard";
 import { ROLE_COLORS, ROLE_LABELS } from "@/constants/roles";
-import { AUTHORIZED_ADMINS } from "@/config/auth";
-import { profileService } from "@/services/profileService";
-import type { Profile } from "@/types/profile";
 import { cn } from "@/components/ui/utils";
 import { StatCard } from "@/components/cards/StatCard";
 import { SvcDot } from "@/components/common/SvcDot";
@@ -25,7 +22,6 @@ interface Props {
 const TABS: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
   { id: DASHBOARD_TAB_IDS.OVERVIEW, label: DASHBOARD_TAB_LABELS.overview, icon: <BarChart3 className="w-3.5 h-3.5" /> },
   { id: DASHBOARD_TAB_IDS.ADMINS, label: DASHBOARD_TAB_LABELS.admins, icon: <Users className="w-3.5 h-3.5" /> },
-  { id: DASHBOARD_TAB_IDS.USERS, label: DASHBOARD_TAB_LABELS.users, icon: <UserCircle2 className="w-3.5 h-3.5" /> },
   { id: DASHBOARD_TAB_IDS.SERVICES, label: DASHBOARD_TAB_LABELS.services, icon: <Server className="w-3.5 h-3.5" /> },
 ];
 
@@ -51,24 +47,6 @@ export function Dashboard({ userMode, siteVisits = 0 }: Props) {
   });
 
   const [adminModal, setAdminModal] = useState<Admin | null>(null);
-
-  // Usuarios normales (no admins): cualquier fila de `profiles` cuyo
-  // owner_email NO esté en AUTHORIZED_ADMINS. Se cargan aparte de
-  // useAdminsList, que es solo para la tabla admin_roles/admins.
-  const [users, setUsers] = useState<Profile[]>([]);
-  const [usersLoading, setUsersLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    profileService.getProfiles().then((all) => {
-      if (cancelled) return;
-      setUsers(all.filter((p) => !(p.ownerEmail.toLowerCase() in AUTHORIZED_ADMINS)));
-      setUsersLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const svcOnline = services.filter((s) => s.status === "online").length;
   const svcOffline = services.filter((s) => s.status === "offline").length;
@@ -138,9 +116,8 @@ export function Dashboard({ userMode, siteVisits = 0 }: Props) {
         <AnimatePresence mode="wait">
           {tab === "overview" && (
             <motion.div key="overview" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard icon={<Users className="w-4 h-4" />} label="Administradores" value={admins.length} />
-                <StatCard icon={<UserCircle2 className="w-4 h-4" />} label="Usuarios" value={users.length} />
                 <StatCard icon={<Eye className="w-4 h-4" />} label="Visitas totales" value={fmt(siteVisits)} />
                 <StatCard icon={<CheckCircle2 className="w-4 h-4" />} label="Servicios online" value={svcOnline} />
                 <StatCard icon={<AlertCircle className="w-4 h-4" />} label="Servicios offline" value={svcOffline} />
@@ -209,54 +186,6 @@ export function Dashboard({ userMode, siteVisits = 0 }: Props) {
                         )}
                       </tr>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
-          )}
-
-          {tab === "users" && (
-            <motion.div key="users" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <p className="text-xs text-slate-500 mb-3">
-                Cualquiera que se registra en el sitio (GitHub, Google o correo) sin ser admin aparece aquí.
-              </p>
-              <div className="rounded-xl border border-white/[0.08] bg-[#161B22] overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-white/[0.06]">
-                      {["Usuario", "Nombre", "Correo", "Desde"].map((h) => (
-                        <th key={h} className="px-5 py-3 text-left text-xs font-medium text-slate-500">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((u) => (
-                      <tr key={u.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-3">
-                            {u.avatar ? (
-                              <img src={u.avatar} alt={u.name} className="w-8 h-8 rounded-lg object-cover border border-white/[0.08]" />
-                            ) : (
-                              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xs font-bold text-emerald-400">
-                                {(u.name || u.ownerEmail).charAt(0).toUpperCase()}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 text-sm font-medium text-white">{u.name || "—"}</td>
-                        <td className="px-5 py-4 text-xs text-slate-400">{u.email || u.ownerEmail}</td>
-                        <td className="px-5 py-4 text-xs text-slate-500">{u.createdAt ? u.createdAt.slice(0, 10) : "—"}</td>
-                      </tr>
-                    ))}
-                    {!usersLoading && users.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="px-5 py-6 text-center text-sm text-slate-500">
-                          Todavía no se ha registrado ningún usuario normal.
-                        </td>
-                      </tr>
-                    )}
                   </tbody>
                 </table>
               </div>
