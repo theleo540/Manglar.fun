@@ -148,14 +148,7 @@ export function Navbar({
     >
       <div className="flex items-center justify-between px-6 md:px-12 h-16">
         <div className="flex items-center gap-8">
-          <a
-            href="#inicio"
-            onClick={(e) => {
-              e.preventDefault();
-              goToNavLink("Inicio", "#inicio");
-            }}
-            className="flex items-center gap-1.5 flex-shrink-0"
-          >
+          <a href="#" className="flex items-center gap-1.5 flex-shrink-0">
             <div className="w-1.5 h-5 bg-[#0be881] rounded-full" />
             <span
               className="text-white font-black text-xl tracking-tight uppercase"
