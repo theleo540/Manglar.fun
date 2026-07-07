@@ -6,6 +6,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { AUTHORIZED_ADMINS } from "@/config/auth";
 import { PERMISSIONS } from "@/config/permissions";
 import { ROLE_COLORS, ROLE_LABELS } from "@/constants/roles";
+import { BackToOrigin } from "@/components/BackToOrigin";
 import { ProfileCard } from "@/components/profile/ProfileCard";
 import { CreatorCard } from "@/components/profile/CreatorCard";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
@@ -83,6 +84,7 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
 
   return (
     <div className="min-h-screen px-6 pt-24 pb-16 max-w-5xl mx-auto">
+      <BackToOrigin />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid lg:grid-cols-[320px_1fr] gap-8">
         <ProfileCard profile={profile} canEdit onEdit={() => setEditing(true)} />
 
@@ -155,6 +157,7 @@ function AdminProfile() {
 
   return (
     <div className="min-h-screen px-6 pt-24 pb-16 max-w-5xl mx-auto">
+      <BackToOrigin />
       {/* Selector de perfil — solo se muestra si hay más de uno */}
       {profiles.length > 1 && (
         <div className="flex items-center gap-2 mb-6">
