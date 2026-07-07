@@ -6,7 +6,7 @@ import { EcosystemStrip } from "../components/EcosystemStrip";
 import { SportsRow } from "../web/futbol";
 import { Footer } from "../components/Footer";
 import { Banner } from "../components/common/Banner";
-import { INSTAGRAM_USER } from "../components/common/FeedbackBanner";
+import { IGWidgetButton } from "../components/common/IGWidgetButton";
 import type { AppRoute } from "../config/routes";
 
 export function Home({ navigate, siteVisits = 0 }: { navigate: (route: AppRoute) => void; siteVisits?: number }) {
@@ -45,6 +45,7 @@ export function Home({ navigate, siteVisits = 0 }: { navigate: (route: AppRoute)
       </div>
 
       <Footer />
+      <IGWidgetButton />
     </div>
   );
 }

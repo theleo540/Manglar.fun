@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Instagram, X } from "lucide-react";
 
-// ✏️ Cambia esto por el usuario de Instagram real de Manglar (este quedó
-// copiado de Manglar_HUB — reemplázalo antes de publicar)
-export const INSTAGRAM_USER = "manglar.fun";
+// ✏️ Cambia esto por tu usuario de Instagram
+export const INSTAGRAM_USER = "valle.mav";
 
 interface FeedbackBannerProps {
   className?: string;
