@@ -7,11 +7,13 @@ import type { AdminTab } from "@/types/admin";
 export const DASHBOARD_TAB_IDS = {
   OVERVIEW: "overview" as AdminTab,
   ADMINS: "admins" as AdminTab,
+  USERS: "users" as AdminTab,
   SERVICES: "services" as AdminTab,
 } as const;
 
 export const DASHBOARD_TAB_LABELS: Record<AdminTab, string> = {
   overview: "Resumen",
   admins: "Admins",
+  users: "Usuarios",
   services: "Servicios",
 };

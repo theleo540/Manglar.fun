@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Bell, Github, LayoutDashboard, LogOut, Search, Settings, Shield, User, X,
-} from "lucide-react";
-import { toast } from "sonner";
+import { Bell, Eye, Github, LayoutDashboard, LogOut, Mail, Search, Shield, User, X } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useSiteSearch } from "@/hooks/useSiteSearch";
+import { fmt } from "@/utils/formatters";
 import { ROUTES, type AppRoute } from "@/config/routes";
 import { ROLE_COLORS, ROLE_LABELS } from "@/constants/roles";
 import type { AdminRole } from "@/types/admin";
 import { AuthModal, GoogleIcon, type AuthMode } from "./AuthModal";
+import { profileService } from "@/services/profileService";
 
 const NAV_LINKS = [
   { label: "Inicio", href: "#inicio" },
@@ -25,7 +24,15 @@ const NAV_LINKS = [
  * (solo puede cerrar sesión por ahora — no hay perfil de usuario común
  * todavía, eso es una función aparte a diseñar).
  */
-export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (route: AppRoute) => void }) {
+export function Navbar({
+  scrolled,
+  navigate,
+  siteVisits = 0,
+}: {
+  scrolled: boolean;
+  navigate: (route: AppRoute) => void;
+  siteVisits?: number;
+}) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
@@ -33,8 +40,50 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
   const [authModal, setAuthModal] = useState<{ open: boolean; mode: AuthMode }>({ open: false, mode: "login" });
   const searchBoxRef = useRef<HTMLDivElement>(null);
 
-  const { user, isAdmin, isSuperAdmin, isLoggedIn, login, logout, loading } = useAdmin();
+  const {
+    user,
+    isAdmin,
+    isSuperAdmin,
+    isLoggedIn,
+    login,
+    loginGoogle,
+    loginWithEmailOtp,
+    verifyEmailOtp,
+    loginWithPassword,
+    registerWithPassword,
+    logout,
+    loading,
+  } = useAdmin();
   const { results, hasQuery } = useSiteSearch(query);
+
+  // El nombre/avatar de la sesión de Supabase Auth solo viene lleno si
+  // entraste por GitHub/Google (traen esos datos automático). Si entras
+  // por correo, esos campos vienen vacíos. El nombre y el ícono que el
+  // usuario SÍ eligió viven en la tabla `profiles`, así que los traemos
+  // aparte y les damos prioridad sobre lo que diga la sesión cruda.
+  const [ownProfile, setOwnProfile] = useState<{ name: string; avatar: string } | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setOwnProfile(null);
+      return;
+    }
+    let cancelled = false;
+    profileService
+      .getOrCreateProfile(user.email, { name: user.name, avatar: user.avatar })
+      .then((p) => {
+        if (!cancelled) setOwnProfile({ name: p.name || user.name, avatar: p.avatar || user.avatar });
+      })
+      .catch(() => {
+        if (!cancelled) setOwnProfile(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.email]);
+
+  const displayName = ownProfile?.name || user?.name || "";
+  const displayAvatar = ownProfile?.avatar || user?.avatar || "";
 
   useEffect(() => {
     const close = () => setProfileOpen(false);
@@ -56,6 +105,26 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
   function closeSearch() {
     setSearchOpen(false);
     setQuery("");
+  }
+
+  /**
+   * Los links de "Inicio"/"Fútbol" son anclas (#inicio, #ecosistema) que
+   * solo existen en Home. Antes, si estabas en /dashboard o /profile,
+   * hacer click ahí solo empujaba el hash a la URL sin moverte
+   * (ej. quedaba "stuck" en /dashboard#inicio sin pasar nada). Ahora,
+   * si no estás en Home, primero navega ahí y luego hace scroll al ancla.
+   */
+  function goToNavLink(label: string, href: string) {
+    setActiveNav(label);
+    const onHome = window.location.pathname.replace(/\/+$/, "") === "" || window.location.pathname === "/";
+    if (!onHome) {
+      navigate(ROUTES.HOME);
+      requestAnimationFrame(() => {
+        setTimeout(() => document.querySelector(href)?.scrollIntoView({ behavior: "smooth" }), 60);
+      });
+    } else {
+      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+    }
   }
 
   function goToResult(href: string) {
@@ -93,7 +162,10 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
               <a
                 key={link.label}
                 href={link.href}
-                onClick={() => setActiveNav(link.label)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  goToNavLink(link.label, link.href);
+                }}
                 className={`text-sm font-medium transition-colors hover:text-white ${
                   activeNav === link.label ? "text-white" : "text-white/55"
                 }`}
@@ -105,6 +177,18 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Cuadro de visitas totales — número real desde Supabase (site_stats),
+            el mismo contador que alimenta el Dashboard. Se oculta en pantallas
+             muy chicas para no saturar el nav. */}
+          <div
+            title="Visitas totales del sitio"
+            className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-white/10 bg-white/[0.04] text-white/70"
+          >
+            <Eye className="w-3.5 h-3.5 text-[#0be881]" />
+            <span className="text-xs font-semibold font-mono text-white">{fmt(siteVisits)}</span>
+            <span className="text-xs">Total de vistas</span>
+          </div>
+
           {/* Buscador real: filtra sobre los widgets/partidos que sí existen hoy */}
           <div ref={searchBoxRef} className="relative">
             {searchOpen ? (
@@ -122,10 +206,7 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="text-white/60 hover:text-white transition-colors"
-              >
+              <button onClick={() => setSearchOpen(true)} className="text-white/60 hover:text-white transition-colors">
                 <Search className="w-5 h-5" />
               </button>
             )}
@@ -150,6 +231,7 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
             )}
           </div>
 
+          {/* Notificaciones (solo ícono por ahora, no hay panel de notificaciones) */}
           <button className="relative text-white/60 hover:text-white transition-colors">
             <Bell className="w-5 h-5" />
             <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-[#0be881] rounded-full" />
@@ -169,13 +251,13 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
                   ? "bg-[#0be881] text-black hover:ring-2 hover:ring-[#0be881]/40"
                   : "bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"
               }`}
-              title={isLoggedIn ? user?.name : "Iniciar sesión"}
+              title={isLoggedIn ? displayName : "Iniciar sesión"}
             >
               {isLoggedIn && user ? (
-                user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
+                displayAvatar ? (
+                  <img src={displayAvatar} alt={displayName} className="w-full h-full rounded-full object-cover" />
                 ) : (
-                  user.name.charAt(0).toUpperCase()
+                  (displayName || user.email).charAt(0).toUpperCase()
                 )
               ) : (
                 <User className="w-4 h-4" />
@@ -190,7 +272,7 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
                 {isLoggedIn && user ? (
                   <>
                     <div className="p-3 border-b border-white/8">
-                      <p className="text-white text-sm font-semibold truncate">{user.name}</p>
+                      <p className="text-white text-sm font-semibold truncate">{displayName}</p>
                       {roleForBadge ? (
                         <span
                           className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${ROLE_COLORS[roleForBadge].text} ${ROLE_COLORS[roleForBadge].bg} ${ROLE_COLORS[roleForBadge].border}`}
@@ -202,35 +284,37 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
                       )}
                     </div>
 
-                    {isAdmin && (
-                      <>
-                        <button
-                          onClick={() => { setProfileOpen(false); navigate(ROUTES.PROFILE); }}
-                          className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                        >
-                          <User className="w-3.5 h-3.5" /> Mi Perfil
-                        </button>
-                        <button
-                          onClick={() => { setProfileOpen(false); navigate(ROUTES.DASHBOARD); }}
-                          className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                        >
-                          <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
-                        </button>
-                      </>
-                    )}
+                    {/* Mi Perfil ahora es para cualquier usuario logueado (con
+                        GitHub o Google), no solo admins: ahí puede actualizar
+                        nombre, correo, contraseña y su ícono de avatar. */}
+                    <button
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate(ROUTES.PROFILE);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 text-sm transition-colors"
+                    >
+                      <User className="w-3.5 h-3.5" /> Mi Perfil
+                    </button>
 
-                    {!isAdmin && (
+                    {isAdmin && (
                       <button
-                        disabled
-                        className="w-full flex items-center gap-3 px-3 py-2.5 text-white/30 text-sm cursor-not-allowed"
-                        title="Perfil de usuario — próximamente"
+                        onClick={() => {
+                          setProfileOpen(false);
+                          navigate(ROUTES.DASHBOARD);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 text-sm transition-colors"
                       >
-                        <Settings className="w-3.5 h-3.5" /> Configuración (próximamente)
+                        <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
                       </button>
                     )}
 
                     <button
-                      onClick={() => { setProfileOpen(false); logout(); navigate(ROUTES.HOME); }}
+                      onClick={() => {
+                        setProfileOpen(false);
+                        logout();
+                        navigate(ROUTES.HOME);
+                      }}
                       className="w-full flex items-center gap-3 px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-400/10 text-sm transition-colors"
                     >
                       <LogOut className="w-3.5 h-3.5" /> Cerrar sesión
@@ -243,7 +327,10 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
                     </p>
                     <div className="space-y-1.5">
                       <button
-                        onClick={() => { setProfileOpen(false); login(); }}
+                        onClick={() => {
+                          setProfileOpen(false);
+                          login();
+                        }}
                         className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
                       >
                         <Github className="w-4 h-4" /> Entrar con GitHub
@@ -251,11 +338,20 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
                       <button
                         onClick={() => {
                           setProfileOpen(false);
-                          toast.info("Iniciar con Google — próximamente");
+                          loginGoogle();
                         }}
                         className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
                       >
                         <GoogleIcon className="w-4 h-4" /> Entrar con Google
+                      </button>
+                      <button
+                        onClick={() => {
+                          setProfileOpen(false);
+                          setAuthModal({ open: true, mode: "login" });
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
+                      >
+                        <Mail className="w-4 h-4" /> Entrar con correo
                       </button>
                     </div>
                     <button
@@ -282,6 +378,23 @@ export function Navbar({ scrolled, navigate }: { scrolled: boolean; navigate: (r
         onClose={() => setAuthModal({ open: false, mode: authModal.mode })}
         onGithubLogin={() => {
           login();
+          setAuthModal({ open: false, mode: authModal.mode });
+        }}
+        onGoogleLogin={() => {
+          loginGoogle();
+          setAuthModal({ open: false, mode: authModal.mode });
+        }}
+        onEmailOtpRequest={loginWithEmailOtp}
+        onEmailOtpVerify={async (email, code) => {
+          await verifyEmailOtp(email, code);
+          setAuthModal({ open: false, mode: authModal.mode });
+        }}
+        onPasswordLogin={async (email, password) => {
+          await loginWithPassword(email, password);
+          setAuthModal({ open: false, mode: authModal.mode });
+        }}
+        onPasswordRegister={async (email, password) => {
+          await registerWithPassword(email, password);
           setAuthModal({ open: false, mode: authModal.mode });
         }}
       />

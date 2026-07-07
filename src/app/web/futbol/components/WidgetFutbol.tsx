@@ -130,12 +130,6 @@ export function WidgetFutbol() {
         </motion.div>
       </div>
 
-      <button
-        onClick={() => setMuted(!muted)}
-        className="absolute bottom-32 right-8 md:right-12 w-10 h-10 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm flex items-center justify-center text-white/70 hover:border-[#0be881] hover:text-[#0be881] transition-all"
-      >
-        {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-      </button>
     </section>
   );
 }

@@ -45,6 +45,50 @@ export const profileService = {
   },
 
   /**
+   * Trae el perfil de un usuario normal (no-admin) por su email, y si no
+   * existe todavía lo crea con lo que ya sabemos de su login (nombre,
+   * avatar). Así cualquiera que entre con GitHub/Google/correo tiene un
+   * perfil editable desde el primer momento, sin que un admin lo dé de alta.
+   */
+  async getOrCreateProfile(ownerEmail: string, defaults: { name: string; avatar?: string }): Promise<Profile> {
+    const { data, error } = await supabase.from("profiles").select("*").eq("owner_email", ownerEmail).maybeSingle();
+    if (!error && data) return fromRow(data);
+
+    const { data: created, error: createError } = await supabase
+      .from("profiles")
+      .insert({
+        owner_email: ownerEmail,
+        name: defaults.name,
+        avatar: defaults.avatar ?? "",
+        email: ownerEmail,
+      })
+      .select()
+      .single();
+
+    if (createError || !created) {
+      // Sin Supabase configurado (o sin la tabla), devolvemos un perfil en
+      // memoria para que la pantalla igual funcione; no se podrá guardar
+      // hasta que la tabla `profiles` exista.
+      if (createError) console.warn("[profileService] no se pudo crear el perfil:", createError.message);
+      return {
+        id: ownerEmail,
+        ownerEmail,
+        name: defaults.name,
+        alias: "",
+        bio: "",
+        avatar: defaults.avatar ?? "",
+        website: "",
+        email: ownerEmail,
+        github: "",
+        instagram: "",
+        createdAt: "",
+        location: "",
+      };
+    }
+    return fromRow(created);
+  },
+
+  /**
    * Actualiza el perfil identificado por ownerEmail.
    * RLS en Supabase garantiza que solo el usuario autenticado con ese mismo
    * email pueda escribir en esa fila.

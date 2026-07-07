@@ -14,9 +14,11 @@ import type { AppRoute } from "../config/routes";
 export function PageShell({
   navigate,
   children,
+  siteVisits = 0,
 }: {
   navigate: (route: AppRoute) => void;
   children: ReactNode;
+  siteVisits?: number;
 }) {
   const [scrolled, setScrolled] = useState(false);
 
@@ -28,7 +30,9 @@ export function PageShell({
 
   return (
     <div className="min-h-screen bg-[#080808] text-white" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      <Navbar scrolled={scrolled} navigate={navigate} />
+      {/* pt-16 en <main> compensa la altura fija del Navbar (h-16) para que
+          el contenido nunca quede debajo de él ni "salte" al montar. */}
+      <Navbar scrolled={scrolled} navigate={navigate} siteVisits={siteVisits} />
       {children}
       <Footer />
     </div>

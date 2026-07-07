@@ -26,7 +26,7 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "wc2026streams",
     label: "WC2026 Streams",
-    widgetUrl: "https://wc2026streams.manglar.fun/api/widget",
+    widgetUrl: "https://wc2026stream-api.azurewebsites.net/api/widget",
   },
   // {
   //   slug: "nba",

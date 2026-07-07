@@ -5,6 +5,7 @@ import { Profile } from "./pages/Profile";
 import { Dashboard } from "./pages/Dashboard";
 import { PageShell } from "./components/PageShell";
 import { useAdmin } from "./hooks/useAdmin";
+import { useSiteVisits } from "./hooks/useSiteVisits";
 import { ROUTES, type AppRoute } from "./config/routes";
 
 /** Mapa entre rutas internas (AppRoute) y URLs reales del navegador. */
@@ -27,6 +28,10 @@ function getPageFromUrl(): AppRoute {
 export default function App() {
   const [page, setPage] = useState<AppRoute>(getPageFromUrl);
   const { isAdmin, userMode, loading } = useAdmin();
+  // Se registra UNA sola vez por carga de la app (no una vez por página),
+  // para que el contador de "Visitas totales" sea real y no se infle al
+  // navegar entre Inicio/Perfil/Dashboard.
+  const { siteVisits } = useSiteVisits();
 
   function navigate(route: AppRoute) {
     setPage(route);
@@ -62,15 +67,15 @@ export default function App() {
         }}
       />
 
-      {page === ROUTES.HOME && <Home navigate={navigate} />}
+      {page === ROUTES.HOME && <Home navigate={navigate} siteVisits={siteVisits} />}
       {page === ROUTES.PROFILE && (
-        <PageShell navigate={navigate}>
+        <PageShell navigate={navigate} siteVisits={siteVisits}>
           <Profile />
         </PageShell>
       )}
       {page === ROUTES.DASHBOARD && isAdmin && (
-        <PageShell navigate={navigate}>
-          <Dashboard userMode={userMode} />
+        <PageShell navigate={navigate} siteVisits={siteVisits}>
+          <Dashboard userMode={userMode} siteVisits={siteVisits} />
         </PageShell>
       )}
     </>

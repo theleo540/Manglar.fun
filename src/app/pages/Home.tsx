@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
+import { Instagram, Bell } from "lucide-react";
 import { Navbar } from "../components/Navbar";
 import { Hero } from "../components/Hero";
 import { EcosystemStrip } from "../components/EcosystemStrip";
 import { SportsRow } from "../web/futbol";
 import { Footer } from "../components/Footer";
+import { Banner } from "../components/common/Banner";
+import { INSTAGRAM_USER } from "../components/common/FeedbackBanner";
 import type { AppRoute } from "../config/routes";
 
-export function Home({ navigate }: { navigate: (route: AppRoute) => void }) {
+export function Home({ navigate, siteVisits = 0 }: { navigate: (route: AppRoute) => void; siteVisits?: number }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -17,13 +20,16 @@ export function Home({ navigate }: { navigate: (route: AppRoute) => void }) {
 
   return (
     <div
+      id="inicio"
       className="min-h-screen bg-[#080808] text-white overflow-x-hidden"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-      <Navbar scrolled={scrolled} navigate={navigate} />
+      <Navbar scrolled={scrolled} navigate={navigate} siteVisits={siteVisits} />
       <Hero />
 
       <div className="pt-8">
+        
+
         <EcosystemStrip />
         <SportsRow title="Deportes" />
 
