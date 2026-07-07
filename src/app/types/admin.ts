@@ -1,5 +1,5 @@
 export type UserMode = "public" | "super-admin" | "admin";
-export type AdminTab = "overview" | "admins" | "services";
+export type AdminTab = "overview" | "admins" | "users" | "services";
 
 export type AdminRole = "super-admin" | "admin";
 export type AdminStatus = "online" | "offline";
