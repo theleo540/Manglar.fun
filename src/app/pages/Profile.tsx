@@ -7,6 +7,7 @@ import { AUTHORIZED_ADMINS } from "@/config/auth";
 import { PERMISSIONS } from "@/config/permissions";
 import { ROLE_COLORS, ROLE_LABELS } from "@/constants/roles";
 import { ProfileCard } from "@/components/profile/ProfileCard";
+import { CreatorCard } from "@/components/profile/CreatorCard";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { AccountEditModal } from "@/components/profile/AccountEditModal";
 import { StatCard } from "@/components/cards/StatCard";
@@ -38,6 +39,7 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [creator, setCreator] = useState<ProfileData | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,6 +55,23 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
       cancelled = true;
     };
   }, [user.email]);
+
+  // Perfil del super-admin (el creador del ecosistema) — se muestra siempre
+  // en el perfil de cualquier usuario normal, para que sepan quién está
+  // detrás del sitio y puedan escribirle por Instagram.
+  useEffect(() => {
+    let cancelled = false;
+    const superAdminEmail = Object.entries(AUTHORIZED_ADMINS).find(([, role]) => role === "super-admin")?.[0];
+    if (!superAdminEmail) return;
+    profileService.getProfiles().then((list) => {
+      if (cancelled) return;
+      const found = list.find((p) => p.ownerEmail.toLowerCase() === superAdminEmail.toLowerCase());
+      if (found) setCreator(found);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleSave(updates: Partial<ProfileData>) {
     if (!profile) return;
@@ -77,6 +96,8 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
               ícono de perfil.
             </p>
           </div>
+
+          {creator && <CreatorCard profile={creator} />}
         </div>
       </motion.div>
 
@@ -123,6 +144,12 @@ function AdminProfile() {
   const [editing, setEditing] = useState(false);
 
   const canEdit = !!profile && !!user && user.email === profile.ownerEmail && hasPermission(PERMISSIONS.EDIT_PROFILE);
+
+  // Perfil del super-admin (creador del ecosistema). Si alguien entra a
+  // /profile SIN sesión iniciada, igual debe ver esta tarjeta para saber
+  // quién está detrás del sitio y poder escribirle por Instagram.
+  const superAdminEmail = Object.entries(AUTHORIZED_ADMINS).find(([, r]) => r === "super-admin")?.[0];
+  const creator = profiles.find((p) => p.ownerEmail.toLowerCase() === superAdminEmail);
 
   if (loading || !profile) return <LoadingProfile />;
 
@@ -177,6 +204,8 @@ function AdminProfile() {
               ubicación) se edita desde la tarjeta de la izquierda si tienes permiso.
             </p>
           </div>
+
+          {!user && creator && <CreatorCard profile={creator} />}
         </div>
       </motion.div>
 
