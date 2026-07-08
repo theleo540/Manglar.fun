@@ -199,7 +199,7 @@ export function AuthModal({
                   <div className="space-y-2 mb-5">
                     <button
                       onClick={onGithubLogin}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
+                      className="hidden lg:flex w-full items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
                     >
                       <Github className="w-4 h-4" />
                       {mode === "login" ? "Continuar con GitHub" : "Registrarme con GitHub"}
