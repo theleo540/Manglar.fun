@@ -29,6 +29,24 @@ function resolveUserFromSession(session: Session | null): AuthUser | null {
   };
 }
 
+// La app Android (MainActivity.kt) carga tanto wc2026streams.manglar.fun
+// como manglar.fun dentro del mismo WebView -- si el usuario hace login
+// de Google desde una página de manglar.fun dentro de la app, es el
+// mismo caso: Google se abre en Chrome y esa sesión nunca vuelve sola al
+// WebView. `AndroidApp` es el puente que la app inyecta vía
+// addJavascriptInterface -- si existe, estamos dentro del WebView nativo.
+function isNativeApp(): boolean {
+  return typeof window !== "undefined" && !!(window as any).AndroidApp?.isNativeApp?.();
+}
+
+const NATIVE_AUTH_REDIRECT = "wc2026manglar://auth-callback";
+
+declare global {
+  interface Window {
+    __mangloDeepLinkSession?: { access_token: string; refresh_token: string };
+  }
+}
+
 export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +59,21 @@ export function useAuth() {
       setUser(resolveUserFromSession(session));
       setLoading(false);
     });
+
+    // ★ Mismo puente que usa wc2026: cuando el login de Google se hizo
+    // desde dentro de la app Android, MainActivity.kt intercepta el
+    // deep link wc2026manglar://auth-callback y deja el token en
+    // window.__mangloDeepLinkSession, disparando este evento.
+    function onDeepLinkSession() {
+      const pending = window.__mangloDeepLinkSession;
+      if (!pending?.access_token) return;
+      window.__mangloDeepLinkSession = undefined;
+      supabase.auth
+        .setSession({ access_token: pending.access_token, refresh_token: pending.refresh_token })
+        .catch(() => {});
+    }
+    window.addEventListener("manglo-deep-link-session", onDeepLinkSession);
+    onDeepLinkSession();
 
     // 2. Si venimos de un redirect OAuth, el token está en el hash — procesarlo
     const hash = window.location.hash;
@@ -58,7 +91,10 @@ export function useAuth() {
       });
     }
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("manglo-deep-link-session", onDeepLinkSession);
+    };
   }, []);
 
   async function login() {
@@ -80,7 +116,7 @@ export function useAuth() {
   async function loginGoogle() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: isNativeApp() ? NATIVE_AUTH_REDIRECT : window.location.origin },
     });
   }
 
