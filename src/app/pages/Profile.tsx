@@ -45,7 +45,7 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
   useEffect(() => {
     let cancelled = false;
     profileService
-      .getOrCreateProfile(user.email, { name: user.name, avatar: user.avatar || AVATAR_PRESETS[0].url })
+      .getOrCreateProfile(user.email, { name: user.name, avatar: user.avatar || AVATAR_PRESETS[0].url, provider: user.provider })
       .then((p) => {
         if (!cancelled) {
           setProfile(p);

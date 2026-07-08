@@ -16,6 +16,7 @@ function fromRow(row: Record<string, unknown>): Profile {
     instagram: (row.instagram as string) ?? "",
     createdAt: (row.created_at as string) ?? "",
     location: (row.location as string) ?? "",
+    provider: (row.provider as string) ?? "",
   };
 }
 
@@ -50,7 +51,7 @@ export const profileService = {
    * avatar). Así cualquiera que entre con GitHub/Google/correo tiene un
    * perfil editable desde el primer momento, sin que un admin lo dé de alta.
    */
-  async getOrCreateProfile(ownerEmail: string, defaults: { name: string; avatar?: string }): Promise<Profile> {
+  async getOrCreateProfile(ownerEmail: string, defaults: { name: string; avatar?: string; provider?: string }): Promise<Profile> {
     const { data, error } = await supabase.from("profiles").select("*").eq("owner_email", ownerEmail).maybeSingle();
     if (!error && data) return fromRow(data);
 
@@ -61,6 +62,7 @@ export const profileService = {
         name: defaults.name,
         avatar: defaults.avatar ?? "",
         email: ownerEmail,
+        provider: defaults.provider ?? "email",
       })
       .select()
       .single();
@@ -83,6 +85,7 @@ export const profileService = {
         instagram: "",
         createdAt: "",
         location: "",
+        provider: defaults.provider ?? "email",
       };
     }
     return fromRow(created);

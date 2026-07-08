@@ -70,7 +70,7 @@ export function Navbar({
     }
     let cancelled = false;
     profileService
-      .getOrCreateProfile(user.email, { name: user.name, avatar: user.avatar })
+      .getOrCreateProfile(user.email, { name: user.name, avatar: user.avatar, provider: user.provider })
       .then((p) => {
         if (!cancelled) setOwnProfile({ name: p.name || user.name, avatar: p.avatar || user.avatar });
       })

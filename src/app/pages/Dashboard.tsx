@@ -224,7 +224,7 @@ export function Dashboard({ userMode, siteVisits = 0 }: Props) {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/[0.06]">
-                      {["Usuario", "Nombre", "Correo", "Desde"].map((h) => (
+                      {["Usuario", "Nombre", "Correo", "Método", "Desde"].map((h) => (
                         <th key={h} className="px-5 py-3 text-left text-xs font-medium text-slate-500">
                           {h}
                         </th>
@@ -247,12 +247,28 @@ export function Dashboard({ userMode, siteVisits = 0 }: Props) {
                         </td>
                         <td className="px-5 py-4 text-sm font-medium text-white">{u.name || "—"}</td>
                         <td className="px-5 py-4 text-xs text-slate-400">{u.email || u.ownerEmail}</td>
+                        <td className="px-5 py-4">
+                          {(() => {
+                            const p = u.provider || "email";
+                            const styles: Record<string, string> = {
+                              github: "text-slate-300 bg-white/[0.06] border-white/[0.12]",
+                              google: "text-blue-300 bg-blue-500/10 border-blue-500/30",
+                              email: "text-emerald-300 bg-emerald-500/10 border-emerald-500/30",
+                            };
+                            const labels: Record<string, string> = { github: "GitHub", google: "Google", email: "Correo" };
+                            return (
+                              <span className={cn("px-2 py-0.5 rounded-full text-[11px] font-medium border", styles[p] ?? styles.email)}>
+                                {labels[p] ?? "Correo"}
+                              </span>
+                            );
+                          })()}
+                        </td>
                         <td className="px-5 py-4 text-xs text-slate-500">{u.createdAt ? u.createdAt.slice(0, 10) : "—"}</td>
                       </tr>
                     ))}
                     {!usersLoading && users.length === 0 && (
                       <tr>
-                        <td colSpan={4} className="px-5 py-6 text-center text-sm text-slate-500">
+                        <td colSpan={5} className="px-5 py-6 text-center text-sm text-slate-500">
                           Todavía no se ha registrado ningún usuario normal.
                         </td>
                       </tr>

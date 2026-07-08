@@ -11,4 +11,5 @@ export interface Profile {
   instagram: string;
   createdAt: string;
   location: string;
+  provider: string;  // "github" | "google" | "email"
 }

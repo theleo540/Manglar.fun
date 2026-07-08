@@ -8,6 +8,7 @@ export interface AuthUser {
   email: string;
   avatar: string;
   role: "super-admin" | "admin" | "user";
+  provider: string;
 }
 
 /**
@@ -21,11 +22,15 @@ function resolveUserFromSession(session: Session | null): AuthUser | null {
   if (!session?.user) return null;
   const email = (session.user.email ?? "").toLowerCase();
   const role = AUTHORIZED_ADMINS[email] ?? "user";
+  // Supabase mete el método de login real en app_metadata.provider
+  // ("github", "google" o "email" si entró con OTP/password).
+  const provider = session.user.app_metadata?.provider ?? "email";
   return {
     name: session.user.user_metadata?.full_name ?? session.user.user_metadata?.user_name ?? email,
     email,
     avatar: session.user.user_metadata?.avatar_url ?? "",
     role,
+    provider,
   };
 }
 
