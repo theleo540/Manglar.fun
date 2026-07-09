@@ -73,9 +73,11 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "manglarpelis",
     label: "ManglarPelis",
-    // Dominio real (mismo para frontend y backend, ajusta si separas
-    // el backend a otro subdominio).
-    widgetUrl: "https://manglarpelis.manglar.fun/api/widget",
+    // Backend real (Azure) — aquí vive /api/widget y /api/widget/top10.
+    // El link al que se manda al usuario NO es esta URL — ese viene en
+    // el campo `domain` de la respuesta del propio /api/widget
+    // (que sí apunta a manglarpelis.manglar.fun, ver backend/.env).
+    widgetUrl: "https://manglarpelis-api.azurewebsites.net/api/widget",
     navLabel: "Películas",
     anchor: "#peliculas",
     footerLabel: "Películas · ManglarPelis",
