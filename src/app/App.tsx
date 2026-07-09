@@ -4,6 +4,10 @@ import { Home } from "./pages/Home";
 import { Profile } from "./pages/Profile";
 import { Dashboard } from "./pages/Dashboard";
 import { NotFound } from "./pages/NotFound";
+import { Privacidad } from "./pages/legal/Privacidad";
+import { Terminos } from "./pages/legal/Terminos";
+import { Cookies } from "./pages/legal/Cookies";
+import { Dmca } from "./pages/legal/Dmca";
 import { PageShell } from "./components/PageShell";
 import { useAdmin } from "./hooks/useAdmin";
 import { useSiteVisits } from "./hooks/useSiteVisits";
@@ -14,6 +18,10 @@ const ROUTE_PATHS: Record<AppRoute, string> = {
   [ROUTES.HOME]: "/",
   [ROUTES.PROFILE]: "/profile",
   [ROUTES.DASHBOARD]: "/dashboard",
+  [ROUTES.LEGAL_PRIVACIDAD]: "/legal/privacidad",
+  [ROUTES.LEGAL_TERMINOS]: "/legal/terminos",
+  [ROUTES.LEGAL_COOKIES]: "/legal/cookies",
+  [ROUTES.LEGAL_DMCA]: "/legal/dmca",
   [ROUTES.NOT_FOUND]: "/404",
 };
 
@@ -81,6 +89,27 @@ export default function App() {
       {page === ROUTES.DASHBOARD && isAdmin && (
         <PageShell navigate={navigate} siteVisits={siteVisits}>
           <Dashboard userMode={userMode} siteVisits={siteVisits} />
+        </PageShell>
+      )}
+
+      {page === ROUTES.LEGAL_PRIVACIDAD && (
+        <PageShell navigate={navigate} siteVisits={siteVisits}>
+          <Privacidad navigate={navigate} />
+        </PageShell>
+      )}
+      {page === ROUTES.LEGAL_TERMINOS && (
+        <PageShell navigate={navigate} siteVisits={siteVisits}>
+          <Terminos navigate={navigate} />
+        </PageShell>
+      )}
+      {page === ROUTES.LEGAL_COOKIES && (
+        <PageShell navigate={navigate} siteVisits={siteVisits}>
+          <Cookies navigate={navigate} />
+        </PageShell>
+      )}
+      {page === ROUTES.LEGAL_DMCA && (
+        <PageShell navigate={navigate} siteVisits={siteVisits}>
+          <Dmca navigate={navigate} />
         </PageShell>
       )}
 
