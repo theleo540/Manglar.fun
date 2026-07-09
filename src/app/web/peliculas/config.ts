@@ -14,5 +14,5 @@
 export const PELICULAS_CONFIG = {
   slug: "manglarpelis",
   label: "ManglarPelis",
-  apiBaseUrl: "http://localhost:3001",
+  apiBaseUrl: "https://manglarpelis.manglar.fun",
 };

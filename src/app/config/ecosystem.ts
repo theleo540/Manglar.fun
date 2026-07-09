@@ -73,16 +73,12 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "manglarpelis",
     label: "ManglarPelis",
-    // Local por ahora (backend/.env de ManglarPelis, puerto 3001).
-    // Cuando despliegues ese backend (Azure/Render/etc), cambia esto
-    // Y src/app/web/peliculas/config.ts (PELICULAS_CONFIG.apiBaseUrl)
-    // al mismo dominio real.
-    widgetUrl: "http://localhost:3001/api/widget",
+    // Dominio real (mismo para frontend y backend, ajusta si separas
+    // el backend a otro subdominio).
+    widgetUrl: "https://manglarpelis.manglar.fun/api/widget",
     navLabel: "Películas",
     anchor: "#peliculas",
     footerLabel: "Películas · ManglarPelis",
-    // Dominio real del FRONTEND de ManglarPelis. Ajusta cuando esté
-    // desplegado — debe ser el mismo PUBLIC_SITE_URL que su backend.
     footerUrl: "https://manglarpelis.manglar.fun",
   },
   // {
