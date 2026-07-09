@@ -14,19 +14,20 @@
  *      y lo sumas al array de retorno si nba.data existe.
  */
 import { useFutbolWidget } from "./futbol";
+import { usePeliculasWidget } from "./peliculas";
 import type { EcosystemWidgetResponse } from "./shared/types";
 
 export function useEcosystemWidgets(): { widgets: EcosystemWidgetResponse[]; checked: boolean } {
   const futbol = useFutbolWidget();
+  const peliculas = usePeliculasWidget();
 
   // const nba = useNbaWidget();
-  // const peliculas = usePeliculasWidget();
 
-  const widgets = [futbol.data /*, nba.data, peliculas.data */].filter(
+  const widgets = [futbol.data, peliculas.data /*, nba.data */].filter(
     (w): w is EcosystemWidgetResponse => w !== null
   );
 
-  const checked = !futbol.loading /* && !nba.loading && !peliculas.loading */;
+  const checked = !futbol.loading && !peliculas.loading /* && !nba.loading */;
 
   return { widgets, checked };
 }

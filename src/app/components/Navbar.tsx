@@ -8,12 +8,20 @@ import { ROLE_COLORS, ROLE_LABELS } from "@/constants/roles";
 import type { AdminRole } from "@/types/admin";
 import { AuthModal, GoogleIcon, type AuthMode } from "./AuthModal";
 import { profileService } from "@/services/profileService";
+import { ECOSYSTEM_PROJECTS } from "@/config/ecosystem";
 
+/**
+ * Links del nav generados desde el registry central
+ * (config/ecosystem.ts). "Inicio" es fijo porque no es un proyecto,
+ * es la propia Home. El resto sale solo si el proyecto define
+ * navLabel + anchor — para sumar uno nuevo, agrégalo allá, no aquí.
+ */
 const NAV_LINKS = [
   { label: "Inicio", href: "#inicio" },
-  { label: "Fútbol", href: "#ecosistema" },
-  // Cuando exista un proyecto nuevo (NBA, Games, TV, News) se agrega
-  // aquí su link real. No agregar nada que no tenga un proyecto detrás.
+  ...ECOSYSTEM_PROJECTS.filter((p) => p.navLabel && p.anchor).map((p) => ({
+    label: p.navLabel!,
+    href: p.anchor!,
+  })),
 ];
 
 /**

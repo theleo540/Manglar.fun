@@ -1,14 +1,16 @@
+import { ECOSYSTEM_PROJECTS } from "@/config/ecosystem";
+
 /**
- * Footer con links reales del ecosistema. Cada vertical real se
- * agrega a mano aquí (mismo criterio que web/registry.ts) — nunca
- * subdominios inventados.
+ * Footer con links reales del ecosistema, generados desde el registry
+ * central (config/ecosystem.ts). Para sumar un producto nuevo aquí,
+ * agrégale footerLabel + footerUrl allá — nunca subdominios inventados,
+ * y nunca se toca este archivo a mano.
  */
 export function Footer() {
-  const productLinks = [
-    { label: "Fútbol · WC2026 Streams", href: `https://wc2026streams.manglar.fun` },
-    // { label: "NBA", href: "https://nba.manglar.fun" },
-    // { label: "Películas", href: "https://peliculas.manglar.fun" },
-  ];
+  const productLinks = ECOSYSTEM_PROJECTS.filter((p) => p.footerLabel && p.footerUrl).map((p) => ({
+    label: p.footerLabel!,
+    href: p.footerUrl!,
+  }));
 
   return (
     <footer className="border-t border-white/5 mt-16 px-6 md:px-12 pt-10 pb-8">

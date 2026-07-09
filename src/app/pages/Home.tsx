@@ -4,6 +4,7 @@ import { Navbar } from "../components/Navbar";
 import { Hero } from "../components/Hero";
 import { EcosystemStrip } from "../components/EcosystemStrip";
 import { SportsRow } from "../web/futbol";
+import { MoviesRow } from "../web/peliculas";
 import { Footer } from "../components/Footer";
 import { Banner } from "../components/common/Banner";
 import { IGWidgetButton } from "../components/common/IGWidgetButton";
@@ -32,6 +33,7 @@ export function Home({ navigate, siteVisits = 0 }: { navigate: (route: AppRoute)
 
         <EcosystemStrip />
         <SportsRow title="Deportes" />
+        <MoviesRow />
 
         {/*
           Cuando exista otro vertical real (ej. NBA), se agrega aquí

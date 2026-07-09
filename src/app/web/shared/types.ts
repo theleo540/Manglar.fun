@@ -33,3 +33,19 @@ export interface EcosystemMatch {
   utcDate: string;
   isLive: boolean;
 }
+
+/**
+ * Contrato de un item de /api/widget/top10 (películas/series). Mismo
+ * criterio que EcosystemMatch para fútbol: forma fija que espera
+ * cualquier <MovieCard> del hub, sin importar el vertical de origen.
+ */
+export interface EcosystemMovieItem {
+  id: string; // `${mediaType}-${tmdbId}`, ej "movie-1234"
+  tmdbId: number;
+  mediaType: "movie" | "tv";
+  title: string;
+  posterUrl: string;
+  backdropUrl: string;
+  rating: string | null;
+  rank?: number; // solo en el Top 10
+}
