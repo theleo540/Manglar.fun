@@ -292,17 +292,11 @@ export function Navbar({
                   <User className="w-4 h-4" />
                 )}
               </span>
-              {/* La flechita solo tiene sentido cuando el click abre un
-                  dropdown (logueado); deslogueado el click va directo al
-                  modal, así que no hay nada que "desplegar" y no la
-                  mostramos para no confundir. */}
-              {isLoggedIn && (
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-white/40 transition-transform duration-200 ${
-                    profileOpen ? "rotate-180 text-white/70" : ""
-                  }`}
-                />
-              )}
+              <ChevronDown
+                className={`w-3.5 h-3.5 text-white/40 transition-transform duration-200 ${
+                  (isLoggedIn ? profileOpen : authModal.open) ? "rotate-180 text-white/70" : ""
+                }`}
+              />
             </button>
 
             {profileOpen && isLoggedIn && user && (
