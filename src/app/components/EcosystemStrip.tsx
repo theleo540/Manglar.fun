@@ -15,15 +15,18 @@ export function EcosystemStrip() {
   return (
     <div id="ecosistema" className="px-6 md:px-12 mb-10">
       <div className="flex items-center gap-2 mb-4">
-        <Zap className="w-3.5 h-3.5 text-[#0be881]" />
+        <Zap className="w-4 h-4 text-[#0be881]" />
         <span
-          className="text-white/35 text-[10px] font-medium tracking-[0.25em] uppercase"
+          className="text-white/60 text-xs font-semibold tracking-[0.2em] uppercase"
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
           Ecosistema Manglar
         </span>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+      <div
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 sm:grid sm:grid-flow-col sm:auto-cols-fr sm:overflow-visible"
+        style={{ scrollbarWidth: "none" }}
+      >
         {widgets.map((w) => (
           <EcosystemWidgetCard key={w.project} data={w} />
         ))}

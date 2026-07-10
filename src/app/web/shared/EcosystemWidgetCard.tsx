@@ -1,40 +1,81 @@
-import { ExternalLink, Film, Trophy } from "lucide-react";
+import { motion } from "motion/react";
+import { ArrowRight, Film, Trophy } from "lucide-react";
 import type { EcosystemWidgetResponse } from "./types";
 
 /**
- * Tarjeta chica y genérica para el EcosystemStrip. No sabe nada de
- * fútbol, NBA, etc — solo pinta lo que trae un /api/widget. Cada
- * vertical (web/futbol, web/nba, web/peliculas...) es quien sabe pedir
- * su propio widget; esta card solo lo muestra. El ícono cambia según
- * `project` nada más para no mostrar un trofeo en algo que no es
- * deporte — si se agrega un vertical nuevo con ícono propio, se suma
- * aquí un caso más.
+ * Tarjeta del EcosystemStrip. No sabe nada de fútbol, NBA, etc — solo
+ * pinta lo que trae un /api/widget. Cada vertical (web/futbol,
+ * web/nba, web/peliculas...) es quien sabe pedir su propio widget;
+ * esta card solo lo muestra. El ícono y el gradiente cambian según
+ * `project` — si se agrega un vertical nuevo, se suma aquí un caso más.
+ *
+ * Visualmente comparte lenguaje con components/common/Banner.tsx
+ * (gradiente diagonal + patrón radial + ícono en chip) para que el
+ * bloque "Ecosistema Manglar" se sienta al mismo nivel que el resto
+ * del hub en vez de una fila de chips planos.
  */
 const PROJECT_ICONS: Record<string, typeof Trophy> = {
   manglarpelis: Film,
 };
 
+const PROJECT_GRADIENTS: Record<string, string> = {
+  manglarpelis: "linear-gradient(135deg, #0d1117 0%, #7e22ce 130%)",
+};
+const DEFAULT_GRADIENT = "linear-gradient(135deg, #0d1117 0%, #0f6e3f 130%)";
+
 export function EcosystemWidgetCard({ data }: { data: EcosystemWidgetResponse }) {
   const Icon = PROJECT_ICONS[data.project] || Trophy;
+  const gradient = PROJECT_GRADIENTS[data.project] || DEFAULT_GRADIENT;
+  const isLive = data.status === "live";
 
   return (
-    <a
+    <motion.a
       href={data.domain}
-      className="flex-shrink-0 flex items-center gap-3 bg-white/4 hover:bg-white/8 border border-white/8 hover:border-[#0be881]/35 rounded-xl px-4 py-3 transition-all group"
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.99 }}
+      className="relative flex-shrink-0 w-[210px] snap-start sm:w-full sm:flex-shrink overflow-hidden rounded-2xl border border-white/10 hover:border-[#0be881]/40 transition-colors group"
+      style={{ background: gradient }}
     >
-      <div className="w-8 h-8 rounded-lg bg-[#0be881]/10 group-hover:bg-[#0be881]/18 flex items-center justify-center text-[#0be881] transition-colors flex-shrink-0 relative">
-        <Icon className="w-4 h-4" />
-        {data.status === "live" && (
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-        )}
+      {/* Patrón decorativo, igual que Banner.tsx */}
+      <div
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 15% 20%, white 0%, transparent 35%), radial-gradient(circle at 90% 80%, white 0%, transparent 30%)",
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 flex items-start gap-3 px-4 py-4">
+        <div className="relative shrink-0 w-11 h-11 rounded-xl bg-black/25 backdrop-blur-sm flex items-center justify-center">
+          <Icon className="w-5 h-5 text-white" />
+          {isLive && (
+            <span className="absolute -top-1.5 -right-1.5 w-3 h-3 rounded-full bg-red-500 ring-2 ring-black/40 animate-pulse" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 pt-0.5">
+          {isLive ? (
+            <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-red-300 mb-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+              En vivo ahora
+            </span>
+          ) : (
+            <span className="text-[9px] font-medium uppercase tracking-wider text-white/40 mb-0.5 block">
+              {data.status === "scheduled" ? "Próximamente" : "Disponible"}
+            </span>
+          )}
+          <p className="text-white text-sm font-bold truncate leading-tight">{data.title}</p>
+          <p className="text-white/60 text-[11px] truncate mt-0.5">{data.description}</p>
+        </div>
       </div>
-      <div className="text-left min-w-0">
-        <p className="text-white text-xs font-semibold truncate">{data.title}</p>
-        <p className="text-white/35 text-[10px]">
-          {data.status === "live" ? "En vivo ahora" : data.description}
-        </p>
+
+      <div className="relative z-10 flex items-center justify-between border-t border-white/10 bg-black/15 px-4 py-2">
+        <span className="text-white/50 text-[10px] font-medium truncate">{data.domain.replace(/^https?:\/\//, "")}</span>
+        <ArrowRight className="w-3.5 h-3.5 text-white/40 group-hover:text-[#0be881] group-hover:translate-x-0.5 transition-all shrink-0" />
       </div>
-      <ExternalLink className="w-3 h-3 text-white/20 group-hover:text-[#0be881]/60 ml-1 flex-shrink-0 transition-colors" />
-    </a>
+    </motion.a>
   );
 }
