@@ -1,5 +1,6 @@
 import { Instagram } from "lucide-react";
 import type { Profile } from "@/types/profile";
+import { getExternalLinkTarget } from "../../utils/linkTarget";
 
 interface Props {
   profile: Profile;
@@ -41,7 +42,7 @@ export function CreatorCard({ profile }: Props) {
 
       <a
         href={profile.instagram ? `https://instagram.com/${profile.instagram}` : undefined}
-        target="_blank"
+        target={getExternalLinkTarget()}
         rel="noreferrer"
         aria-disabled={!profile.instagram}
         className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-gradient-to-r from-pink-500 to-orange-400 text-white text-sm font-semibold hover:opacity-90 transition-all aria-disabled:opacity-30 aria-disabled:pointer-events-none"

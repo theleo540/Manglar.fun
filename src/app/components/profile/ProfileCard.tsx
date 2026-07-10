@@ -1,5 +1,6 @@
 import { Github, Instagram, Mail, MapPin, Globe, Calendar, Pencil } from "lucide-react";
 import type { Profile } from "@/types/profile";
+import { getExternalLinkTarget } from "../../utils/linkTarget";
 
 interface Props {
   profile: Profile;
@@ -55,7 +56,7 @@ export function ProfileCard({ profile, canEdit, onEdit }: Props) {
       <div className="flex gap-3 w-full">
         <a
           href={profile.github ? `https://github.com/${profile.github}` : undefined}
-          target="_blank"
+          target={getExternalLinkTarget()}
           rel="noreferrer"
           aria-disabled={!profile.github}
           className="flex-1 flex items-center justify-center px-3 py-2 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:border-white/20 transition-all aria-disabled:opacity-30 aria-disabled:pointer-events-none"
@@ -64,7 +65,7 @@ export function ProfileCard({ profile, canEdit, onEdit }: Props) {
         </a>
         <a
           href={profile.instagram ? `https://instagram.com/${profile.instagram}` : undefined}
-          target="_blank"
+          target={getExternalLinkTarget()}
           rel="noreferrer"
           aria-disabled={!profile.instagram}
           className="flex-1 flex items-center justify-center px-3 py-2 rounded-lg border border-white/[0.08] text-slate-400 hover:text-white hover:border-white/20 transition-all aria-disabled:opacity-30 aria-disabled:pointer-events-none"

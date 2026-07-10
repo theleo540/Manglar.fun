@@ -1,4 +1,5 @@
 import { INSTAGRAM_USER } from "./FeedbackBanner";
+import { getExternalLinkTarget } from "../../utils/linkTarget";
 
 interface Props {
   className?: string;
@@ -18,7 +19,7 @@ export function IGWidgetButton({ className = "" }: Props) {
   return (
     <a
       href={`https://ig.me/m/${INSTAGRAM_USER}`}
-      target="_blank"
+      target={getExternalLinkTarget()}
       rel="noopener noreferrer"
       aria-label="Envíame un mensaje en Instagram"
       className={className}

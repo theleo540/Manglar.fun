@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowRight, Film, Trophy } from "lucide-react";
 import type { EcosystemWidgetResponse } from "./types";
+import { getExternalLinkTarget } from "../../utils/linkTarget";
 
 /**
  * Tarjeta del EcosystemStrip. No sabe nada de fútbol, NBA, etc — solo
@@ -31,7 +32,7 @@ export function EcosystemWidgetCard({ data }: { data: EcosystemWidgetResponse })
   return (
     <motion.a
       href={data.domain}
-      target="_blank"
+      target={getExternalLinkTarget()}
       rel="noopener noreferrer"
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.99 }}

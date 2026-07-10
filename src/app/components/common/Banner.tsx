@@ -2,6 +2,7 @@
 import { motion } from "motion/react";
 import { type LucideIcon } from "lucide-react";
 import React from "react";
+import { getExternalLinkTarget } from "../../utils/linkTarget";
 
 type BannerVariant =
   | "green" | "amber" | "blue" | "red" | "purple"
@@ -191,7 +192,7 @@ export function Banner({
   if (href) {
     return (
       <div className="px-6 max-w-7xl mx-auto">
-        <a href={href} target="_blank" rel="noopener noreferrer">
+        <a href={href} target={getExternalLinkTarget()} rel="noopener noreferrer">
           {inner}
         </a>
       </div>
