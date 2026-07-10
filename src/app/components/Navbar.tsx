@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, Eye, Github, LayoutDashboard, LogOut, Mail, Search, Shield, User, X } from "lucide-react";
+import { Bell, ChevronDown, Eye, LayoutDashboard, LogOut, Search, User, X } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useSiteSearch } from "@/hooks/useSiteSearch";
 import { fmt } from "@/utils/formatters";
 import { ROUTES, type AppRoute } from "@/config/routes";
 import { ROLE_COLORS, ROLE_LABELS } from "@/constants/roles";
 import type { AdminRole } from "@/types/admin";
-import { AuthModal, GoogleIcon, type AuthMode } from "./AuthModal";
+import { AuthModal, type AuthMode } from "./AuthModal";
 import { profileService } from "@/services/profileService";
 import { ECOSYSTEM_PROJECTS } from "@/config/ecosystem";
 
@@ -252,134 +252,112 @@ export function Navbar({
             <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-[#0be881] rounded-full" />
           </button>
 
-          {/* Login único: usuarios normales y admins comparten este botón */}
-          <div
-            className="relative"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!loading) setProfileOpen(!profileOpen);
-            }}
-          >
+          {/* Login único: usuarios normales y admins comparten este botón.
+              Deslogueado: el click abre directo el AuthModal centrado
+              (igual que ManglarPelis y WC2026Streams) — antes acá se abría
+              un dropdown angosto con los 3 botones de login adentro, pero
+              eso quedó inconsistente con el resto del ecosistema, así que
+              ahora ese dropdown solo existe para el menú de perfil de un
+              usuario YA logueado (Mi Perfil / Dashboard / Cerrar sesión). */}
+          <div className="relative">
             <button
-              className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-all select-none ${
-                isLoggedIn
-                  ? "bg-[#0be881] text-black hover:ring-2 hover:ring-[#0be881]/40"
-                  : "bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (loading) return;
+                if (isLoggedIn) {
+                  setProfileOpen((v) => !v);
+                } else {
+                  setAuthModal({ open: true, mode: "login" });
+                }
+              }}
+              className={`flex items-center gap-1 pl-0.5 pr-1 py-0.5 rounded-lg transition-all select-none ${
+                isLoggedIn ? "hover:bg-white/5" : ""
               }`}
               title={isLoggedIn ? displayName : "Iniciar sesión"}
             >
-              {isLoggedIn && user ? (
-                displayAvatar ? (
-                  <img src={displayAvatar} alt={displayName} className="w-full h-full rounded-full object-cover" />
+              <span
+                className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center font-black text-xs overflow-hidden transition-all ${
+                  isLoggedIn
+                    ? "bg-[#0be881] text-black hover:ring-2 hover:ring-[#0be881]/40"
+                    : "bg-white/10 text-white/70 hover:bg-white/15 hover:text-white"
+                }`}
+              >
+                {isLoggedIn && user ? (
+                  displayAvatar ? (
+                    <img src={displayAvatar} alt={displayName} className="w-full h-full rounded-lg object-cover" />
+                  ) : (
+                    (displayName || user.email).charAt(0).toUpperCase()
+                  )
                 ) : (
-                  (displayName || user.email).charAt(0).toUpperCase()
-                )
-              ) : (
-                <User className="w-4 h-4" />
+                  <User className="w-4 h-4" />
+                )}
+              </span>
+              {/* La flechita solo tiene sentido cuando el click abre un
+                  dropdown (logueado); deslogueado el click va directo al
+                  modal, así que no hay nada que "desplegar" y no la
+                  mostramos para no confundir. */}
+              {isLoggedIn && (
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-white/40 transition-transform duration-200 ${
+                    profileOpen ? "rotate-180 text-white/70" : ""
+                  }`}
+                />
               )}
             </button>
 
-            {profileOpen && (
+            {profileOpen && isLoggedIn && user && (
               <div
-                className="absolute right-0 top-11 w-56 bg-[#111111]/98 border border-white/10 rounded-xl overflow-hidden backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+                className="absolute right-0 top-11 w-56 bg-[#111111]/98 border border-white/10 rounded-xl overflow-hidden backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.7)] animate-in fade-in slide-in-from-top-1 duration-150"
                 onClick={(e) => e.stopPropagation()}
               >
-                {isLoggedIn && user ? (
-                  <>
-                    <div className="p-3 border-b border-white/8">
-                      <p className="text-white text-sm font-semibold truncate">{displayName}</p>
-                      {roleForBadge ? (
-                        <span
-                          className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${ROLE_COLORS[roleForBadge].text} ${ROLE_COLORS[roleForBadge].bg} ${ROLE_COLORS[roleForBadge].border}`}
-                        >
-                          {ROLE_LABELS[roleForBadge]}
-                        </span>
-                      ) : (
-                        <p className="text-white/40 text-xs">Cuenta · Modo usuario</p>
-                      )}
-                    </div>
-
-                    {/* Mi Perfil ahora es para cualquier usuario logueado (con
-                        GitHub o Google), no solo admins: ahí puede actualizar
-                        nombre, correo, contraseña y su ícono de avatar. */}
-                    <button
-                      onClick={() => {
-                        setProfileOpen(false);
-                        navigate(ROUTES.PROFILE);
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 text-sm transition-colors"
+                <div className="p-3 border-b border-white/8">
+                  <p className="text-white text-sm font-semibold truncate">{displayName}</p>
+                  {roleForBadge ? (
+                    <span
+                      className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${ROLE_COLORS[roleForBadge].text} ${ROLE_COLORS[roleForBadge].bg} ${ROLE_COLORS[roleForBadge].border}`}
                     >
-                      <User className="w-3.5 h-3.5" /> Mi Perfil
-                    </button>
+                      {ROLE_LABELS[roleForBadge]}
+                    </span>
+                  ) : (
+                    <p className="text-white/40 text-xs">Cuenta · Modo usuario</p>
+                  )}
+                </div>
 
-                    {isAdmin && (
-                      <button
-                        onClick={() => {
-                          setProfileOpen(false);
-                          navigate(ROUTES.DASHBOARD);
-                        }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 text-sm transition-colors"
-                      >
-                        <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
-                      </button>
-                    )}
+                {/* Mi Perfil ahora es para cualquier usuario logueado (con
+                    GitHub o Google), no solo admins: ahí puede actualizar
+                    nombre, correo, contraseña y su ícono de avatar. */}
+                <button
+                  onClick={() => {
+                    setProfileOpen(false);
+                    navigate(ROUTES.PROFILE);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 text-sm transition-colors"
+                >
+                  <User className="w-3.5 h-3.5" /> Mi Perfil
+                </button>
 
-                    <button
-                      onClick={() => {
-                        setProfileOpen(false);
-                        logout();
-                        navigate(ROUTES.HOME);
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-400/10 text-sm transition-colors"
-                    >
-                      <LogOut className="w-3.5 h-3.5" /> Cerrar sesión
-                    </button>
-                  </>
-                ) : (
-                  <div className="p-3">
-                    <p className="text-xs text-slate-400 mb-2.5 px-1 flex items-center gap-1.5">
-                      <Shield className="w-3 h-3" /> Inicia sesión para continuar
-                    </p>
-                    <div className="space-y-1.5">
-                      <button
-                        onClick={() => {
-                          setProfileOpen(false);
-                          login();
-                        }}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
-                      >
-                        <Github className="w-4 h-4" /> Entrar con GitHub
-                      </button>
-                      <button
-                        onClick={() => {
-                          setProfileOpen(false);
-                          loginGoogle();
-                        }}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
-                      >
-                        <GoogleIcon className="w-4 h-4" /> Entrar con Google
-                      </button>
-                      <button
-                        onClick={() => {
-                          setProfileOpen(false);
-                          setAuthModal({ open: true, mode: "login" });
-                        }}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-sm text-white transition-colors"
-                      >
-                        <Mail className="w-4 h-4" /> Entrar con correo
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setProfileOpen(false);
-                        setAuthModal({ open: true, mode: "register" });
-                      }}
-                      className="w-full mt-3 pt-3 border-t border-white/8 text-center text-xs text-[#0be881] hover:text-white font-medium transition-colors"
-                    >
-                      ¿No tienes cuenta? Regístrate
-                    </button>
-                  </div>
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      setProfileOpen(false);
+                      navigate(ROUTES.DASHBOARD);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-white/60 hover:text-white hover:bg-white/5 text-sm transition-colors"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
+                  </button>
                 )}
+
+                <button
+                  onClick={() => {
+                    setProfileOpen(false);
+                    logout();
+                    navigate(ROUTES.HOME);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-400/10 text-sm transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> Cerrar sesión
+                </button>
               </div>
             )}
           </div>
