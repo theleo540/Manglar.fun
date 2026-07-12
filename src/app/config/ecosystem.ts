@@ -83,13 +83,17 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
     footerLabel: "Películas · ManglarPelis",
     footerUrl: "https://manglarpelis.manglar.fun",
   },
-  // {
-  //   slug: "nba",
-  //   label: "NBA Streams",
-  //   widgetUrl: "https://nba.manglar.hub/api/widget",
-  //   navLabel: "NBA",
-  //   anchor: "#ecosistema",
-  //   footerLabel: "NBA · NBA Streams",
-  //   footerUrl: "https://nba.manglar.fun",
-  // },
+  {
+    slug: "manglarnba",
+    label: "ManglarNBA",
+    // TODO: cuando ManglarNBA tenga su propio GET /api/widget, poner esa
+    // URL real aquí (mismo contrato que wc2026streams y manglarpelis).
+    // Mientras tanto el hook lo va a ignorar si falla el fetch, pero el
+    // link del nav/footer ya funciona igual.
+    widgetUrl: "https://manglarnba-api.azurewebsites.net/api/widget",
+    navLabel: "NBA",
+    anchor: "#ecosistema",
+    footerLabel: "NBA · ManglarNBA",
+    footerUrl: "https://manglarnba.manglar.fun",
+  },
 ];

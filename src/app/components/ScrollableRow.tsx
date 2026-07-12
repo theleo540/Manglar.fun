@@ -54,22 +54,18 @@ export function ScrollableRow({ children }: { children: ReactNode }) {
         <button
           onClick={() => scroll("left")}
           aria-label="Desplazar a la izquierda"
-          className="absolute left-0 top-0 bottom-4 z-20 w-14 bg-gradient-to-r from-[#080808] to-transparent flex items-center justify-start pl-2 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 transition-opacity"
+          className="hidden [@media(hover:hover)_and_(pointer:fine)]:flex absolute left-0 top-0 bottom-0 z-20 w-10 md:w-14 items-center justify-center bg-gradient-to-r from-[#080808] to-transparent opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 transition-opacity hover:from-[#080808]/80"
         >
-          <div className="w-8 h-8 rounded-full bg-black/80 border border-white/15 flex items-center justify-center hover:bg-[#0be881] hover:border-[#0be881] transition-all group/btn">
-            <ChevronLeft className="w-4 h-4 text-white group-hover/btn:text-black transition-colors" />
-          </div>
+          <ChevronLeft size={30} color="white" />
         </button>
       )}
       {canRight && (
         <button
           onClick={() => scroll("right")}
           aria-label="Desplazar a la derecha"
-          className="absolute right-0 top-0 bottom-4 z-20 w-20 bg-gradient-to-l from-[#080808] to-transparent flex items-center justify-end pr-2 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 transition-opacity"
+          className="hidden [@media(hover:hover)_and_(pointer:fine)]:flex absolute right-0 top-0 bottom-0 z-20 w-10 md:w-14 items-center justify-center bg-gradient-to-l from-[#080808] to-transparent opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 transition-opacity hover:from-[#080808]/80"
         >
-          <div className="w-8 h-8 rounded-full bg-black/80 border border-white/15 flex items-center justify-center hover:bg-[#0be881] hover:border-[#0be881] transition-all group/btn">
-            <ChevronRight className="w-4 h-4 text-white group-hover/btn:text-black transition-colors" />
-          </div>
+          <ChevronRight size={30} color="white" />
         </button>
       )}
       <div

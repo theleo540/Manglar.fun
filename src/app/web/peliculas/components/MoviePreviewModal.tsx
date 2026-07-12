@@ -17,12 +17,13 @@ export function MoviePreviewModal({ item, domain, onClose }: { item: EcosystemMo
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-start md:items-center justify-center bg-black/80 px-4 py-8 overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 px-4 py-8 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-xl bg-[#181818] rounded-lg overflow-hidden shadow-2xl border border-white/10"
+        className="relative w-full max-w-xl bg-[#181818]/35 backdrop-blur-md rounded-lg overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
+        style={{ animation: "cardExpand 0.2s ease-out" }}
       >
         <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
           <img
@@ -46,7 +47,7 @@ export function MoviePreviewModal({ item, domain, onClose }: { item: EcosystemMo
             </span>
           )}
 
-          <h2 className="absolute bottom-4 left-5 right-5 text-white text-2xl md:text-3xl font-extrabold tracking-tight" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+          <h2 className="absolute bottom-4 left-5 right-5 text-white text-2xl md:text-3xl font-extrabold font-['Barlow_Condensed'] tracking-tight">
             {item.title}
           </h2>
         </div>
