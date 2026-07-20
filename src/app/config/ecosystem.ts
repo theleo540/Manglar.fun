@@ -2,7 +2,7 @@
  * Registry del Ecosistema Manglar — FUENTE ÚNICA DE VERDAD.
  *
  * Cada proyecto real del ecosistema expone GET /api/widget en su propio
- * backend (ver server.js de WC2026Streams). Ese endpoint es el contrato:
+ * backend (ver server.js de ManglarFutbol). Ese endpoint es el contrato:
  * siempre regresa la forma de EcosystemWidgetResponse, sin importar el
  * proyecto de donde venga.
  *
@@ -62,13 +62,13 @@ export interface EcosystemProjectConfig {
 
 export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
-    slug: "wc2026streams",
-    label: "WC2026 Streams",
+    slug: "manglarfutbol",
+    label: "ManglarFutbol",
     widgetUrl: "https://wc2026stream-api.azurewebsites.net/api/widget",
     navLabel: "Fútbol",
     anchor: "#ecosistema",
-    footerLabel: "Fútbol · WC2026 Streams",
-    footerUrl: "https://wc2026streams.manglar.fun",
+    footerLabel: "Fútbol · ManglarFutbol",
+    footerUrl: "https://manglarfutbol.manglar.fun",
   },
   {
     slug: "manglarpelis",

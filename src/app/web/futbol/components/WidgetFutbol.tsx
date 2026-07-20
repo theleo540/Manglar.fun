@@ -6,7 +6,7 @@ import { FlagHalf } from "../../shared/FlagHalf";
 import { CountdownTimer } from "./CountdownTimer";
 
 /**
- * <WidgetFutbol /> — banner grande del vertical Fútbol (WC2026 Streams)
+ * <WidgetFutbol /> — banner grande del vertical Fútbol (ManglarFutbol)
  * para el Hero de manglar.fun. Usa useFutbolWidget() por dentro, así
  * que siempre muestra el partido real (o el estado vacío real si no
  * hay nada en vivo/programado).
@@ -23,14 +23,14 @@ export function WidgetFutbol() {
 
   const isLive = data?.status === "live";
   const match = data?.card;
-  const domain = data?.domain || "https://wc2026streams.manglar.fun";
+  const domain = data?.domain || "https://manglarfutbol.manglar.fun";
 
-  const title = match ? `${match.home} vs ${match.away}` : "WC2026 Streams";
+  const title = match ? `${match.home} vs ${match.away}` : "ManglarFutbol";
   const meta = match
     ? new Date(match.utcDate).toLocaleString("es-MX", {
         weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
       })
-    : "Fútbol en vivo · Mundial 2026";
+    : "Fútbol en vivo · Champions, Premier, La Liga y más";
   const description = match
     ? "Sigue el partido en vivo con chat en tiempo real, contador de espectadores y transmisión en HD."
     : loading
@@ -74,7 +74,7 @@ export function WidgetFutbol() {
               className="text-[#0be881] text-[11px] font-black tracking-[0.22em] uppercase"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
-              WC2026 STREAMS
+              MANGLARFUTBOL
             </span>
             {isLive && (
               <>
