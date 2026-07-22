@@ -64,7 +64,7 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "manglarfutbol",
     label: "ManglarFutbol",
-    widgetUrl: "https://wc2026stream-api.azurewebsites.net/api/widget",
+    widgetUrl: "https://manglarfutbol-api-gjamc2dtapbsddak.southcentralus-01.azurewebsites.net/api/widget",
     navLabel: "Fútbol",
     anchor: "#ecosistema",
     footerLabel: "Fútbol · ManglarFutbol",
@@ -77,7 +77,7 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
     // El link al que se manda al usuario NO es esta URL — ese viene en
     // el campo `domain` de la respuesta del propio /api/widget
     // (que sí apunta a manglarpelis.manglar.fun, ver backend/.env).
-    widgetUrl: "https://manglarpelis-api.azurewebsites.net/api/widget",
+    widgetUrl: "https://manglarpelis-api-bfbharh2c0cueuhj.canadaeast-01.azurewebsites.net/api/widget",
     navLabel: "Películas",
     anchor: "#peliculas",
     footerLabel: "Películas · ManglarPelis",
@@ -90,7 +90,7 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
     // URL real aquí (mismo contrato que wc2026streams y manglarpelis).
     // Mientras tanto el hook lo va a ignorar si falla el fetch, pero el
     // link del nav/footer ya funciona igual.
-    widgetUrl: "https://manglarnba-api.azurewebsites.net/api/widget",
+    widgetUrl: "https://manglarnba-api-gfgcakfeambugadn.mexicocentral-01.azurewebsites.net/api/widget",
     navLabel: "NBA",
     anchor: "#ecosistema",
     footerLabel: "NBA · ManglarNBA",

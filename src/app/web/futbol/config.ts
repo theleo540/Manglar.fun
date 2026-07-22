@@ -10,5 +10,5 @@ export const FUTBOL_CONFIG = {
   // Backend real (Azure) — aquí vive /api/widget y /api/widget/matches.
   // El link al que se manda al usuario NO es esta URL — ese viene en
   // el campo `domain` de la respuesta del propio /api/widget.
-  apiBaseUrl: "https://wc2026stream-api.azurewebsites.net",
+  apiBaseUrl: "https://manglarfutbol-api-gjamc2dtapbsddak.southcentralus-01.azurewebsites.net",
 };

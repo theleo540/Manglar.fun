@@ -14,5 +14,5 @@
 export const PELICULAS_CONFIG = {
   slug: "manglarpelis",
   label: "ManglarPelis",
-  apiBaseUrl: "https://manglarpelis-api.azurewebsites.net",
+  apiBaseUrl: "https://manglarpelis-api-bfbharh2c0cueuhj.canadaeast-01.azurewebsites.net",
 };
