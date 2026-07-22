@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { AUTHORIZED_ADMINS } from "@/config/auth";
+import { openOAuthPopup, waitForPopupClose } from "@/lib/oauthPopup";
 
 export interface AuthUser {
   name: string;
@@ -103,13 +104,16 @@ export function useAuth() {
   }, []);
 
   async function login() {
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: `${window.location.origin}/?authPopup=1`,
         scopes: "read:user user:email",
+        skipBrowserRedirect: true,
       },
     });
+    if (error || !data?.url) return;
+    openInPopupOrRedirect(data.url, "github-login");
   }
 
   /**
@@ -119,9 +123,27 @@ export function useAuth() {
    * error y no se abre el popup — no es un bug de este código.
    */
   async function loginGoogle() {
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: isNativeApp() ? NATIVE_AUTH_REDIRECT : window.location.origin },
+      options: {
+        redirectTo: isNativeApp() ? NATIVE_AUTH_REDIRECT : `${window.location.origin}/?authPopup=1`,
+        skipBrowserRedirect: true,
+      },
+    });
+    if (error || !data?.url) return;
+    openInPopupOrRedirect(data.url, "google-login");
+  }
+
+  // Login en ventana pequeña centrada (no navega la página/iframe actual,
+  // relevante ahora que Hub también se embebe dentro de Laduela).
+  function openInPopupOrRedirect(url: string, name: string) {
+    const popup = openOAuthPopup(url, name);
+    if (!popup) {
+      window.location.href = url;
+      return;
+    }
+    waitForPopupClose(popup, () => {
+      supabase.auth.getSession();
     });
   }
 
