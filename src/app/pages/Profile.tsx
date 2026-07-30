@@ -11,6 +11,7 @@ import { ProfileCard } from "@/components/profile/ProfileCard";
 import { CreatorCard } from "@/components/profile/CreatorCard";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { AccountEditModal } from "@/components/profile/AccountEditModal";
+import { EcosystemActivitySection } from "@/components/profile/EcosystemActivitySection";
 import { StatCard } from "@/components/cards/StatCard";
 import { cn } from "@/components/ui/utils";
 import { profileService } from "@/services/profileService";
@@ -98,6 +99,8 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
               ícono de perfil.
             </p>
           </div>
+
+          <EcosystemActivitySection ownerEmail={profile.ownerEmail} />
 
           {creator && <CreatorCard profile={creator} />}
         </div>
