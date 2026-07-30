@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { ArrowRight, Film, Trophy } from "lucide-react";
+import { ArrowRight, Film, Trophy, Play, Flame } from "lucide-react";
 import type { EcosystemWidgetResponse } from "./types";
 import { getExternalLinkTarget } from "../../utils/linkTarget";
 
@@ -17,10 +17,14 @@ import { getExternalLinkTarget } from "../../utils/linkTarget";
  */
 const PROJECT_ICONS: Record<string, typeof Trophy> = {
   manglarpelis: Film,
+  manglaranime: Play,
+  manglarhentai: Flame,
 };
 
 const PROJECT_GRADIENTS: Record<string, string> = {
   manglarpelis: "linear-gradient(135deg, #0d1117 0%, #7e22ce 130%)",
+  manglaranime: "linear-gradient(135deg, #0d1117 0%, #db2777 130%)",
+  manglarhentai: "linear-gradient(135deg, #0d1117 0%, #991b1b 130%)",
 };
 const DEFAULT_GRADIENT = "linear-gradient(135deg, #0d1117 0%, #0f6e3f 130%)";
 

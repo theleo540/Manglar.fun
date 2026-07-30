@@ -15,19 +15,28 @@
  */
 import { useFutbolWidget } from "./futbol";
 import { usePeliculasWidget } from "./peliculas";
+import { useEcosystemWidget } from "../hooks/useEcosystemWidget";
 import type { EcosystemWidgetResponse } from "./shared/types";
 
 export function useEcosystemWidgets(): { widgets: EcosystemWidgetResponse[]; checked: boolean } {
   const futbol = useFutbolWidget();
   const peliculas = usePeliculasWidget();
+  // ManglarAnime y ManglarHentai no tienen tarjeta propia (no hay
+  // MatchCard/MovieCard para ellos todavía), asi que usan directo el
+  // hook generico por slug (mismo que usa el Hero) en vez de un
+  // web/anime/hooks/useWidget.ts dedicado -- su /api/widget ya cumple
+  // el contrato tal cual.
+  const anime = useEcosystemWidget("manglaranime");
+  const hentai = useEcosystemWidget("manglarhentai");
 
   // const nba = useNbaWidget();
 
-  const widgets = [futbol.data, peliculas.data /*, nba.data */].filter(
+  const widgets = [futbol.data, peliculas.data, anime.data, hentai.data /*, nba.data */].filter(
     (w): w is EcosystemWidgetResponse => w !== null
   );
 
-  const checked = !futbol.loading && !peliculas.loading /* && !nba.loading */;
+  const checked =
+    !futbol.loading && !peliculas.loading && !anime.loading && !hentai.loading /* && !nba.loading */;
 
   return { widgets, checked };
 }

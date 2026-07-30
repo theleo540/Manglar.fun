@@ -4,12 +4,6 @@ Este vertical no tiene backend ni datos reales todavía. No hay que
 poner nada de contenido inventado aquí — solo esta guía de cómo armarlo
 cuando el proyecto de NBA exista de verdad.
 
-Ver `web/README.md` para el panorama completo. Nota: en
-`config/ecosystem.ts` ya hay una `widgetUrl` puesta para NBA (Azure) —
-esa URL es solo para el link del navbar/footer y todavía no se sabe si
-ya sirve `/api/widget` en producción. Confirmar eso primero antes de
-seguir los pasos de abajo.
-
 ## Cuando el backend de NBA ya tenga /api/widget funcionando:
 
 1. Copia la carpeta `web/futbol/` completa a `web/nba/`

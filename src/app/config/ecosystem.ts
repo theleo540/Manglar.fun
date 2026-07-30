@@ -84,6 +84,33 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
     footerUrl: "https://manglarpelis.manglar.fun",
   },
   {
+    slug: "manglaranime",
+    label: "ManglarAnime",
+    // Backend real (anime1v-api), deployado en Azure App Service. El
+    // link al que se manda al usuario NO es esta URL -- ese viene en
+    // el campo `domain` de la respuesta del propio /api/widget (que
+    // apunta a anime.manglar.fun, ver ANIME_SITE_URL en el backend).
+    widgetUrl: "https://anime1v-api-gkagbgeqdjauchcu.canadacentral-01.azurewebsites.net/api/widget",
+    navLabel: "Anime",
+    anchor: "#ecosistema",
+    footerLabel: "Anime · ManglarAnime",
+    footerUrl: "https://anime.manglar.fun",
+  },
+  {
+    slug: "manglarhentai",
+    label: "ManglarHentai",
+    // Backend real (anime1v-api), deployado en Render -- instancia
+    // separada de la de ManglarAnime (misma app, otro deploy). El link
+    // al que se manda al usuario NO es esta URL -- ese viene en el
+    // campo `domain` de la respuesta del propio /api/widget (que apunta
+    // a hentai.manglar.fun, ver ANIME_SITE_URL en ese deploy).
+    widgetUrl: "https://anime1v-api-iynf.onrender.com/api/widget",
+    navLabel: "Hentai",
+    anchor: "#ecosistema",
+    footerLabel: "Hentai · ManglarHentai",
+    footerUrl: "https://hentai.manglar.fun",
+  },
+  {
     slug: "manglarnba",
     label: "ManglarNBA",
     // TODO: cuando ManglarNBA tenga su propio GET /api/widget, poner esa
