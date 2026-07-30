@@ -95,7 +95,7 @@ export function EcosystemActivitySection({ ownerEmail }: { ownerEmail: string })
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0">
       <SectionShell
         title="ManglarPelis"
         action={

@@ -89,7 +89,7 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid lg:grid-cols-[320px_1fr] gap-8">
         <ProfileCard profile={profile} canEdit onEdit={() => setEditing(true)} />
 
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0">
           <StatCard icon={<Calendar className="w-4 h-4" />} label="Miembro desde" value={profile.createdAt || "—"} />
 
           <div className="rounded-2xl border border-white/[0.08] bg-[#161B22] p-6">
@@ -184,7 +184,7 @@ function AdminProfile() {
       <motion.div key={profile.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid lg:grid-cols-[320px_1fr] gap-8">
         <ProfileCard profile={profile} canEdit={canEdit} onEdit={() => setEditing(true)} />
 
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0">
           {user && (
             <div className="grid grid-cols-2 gap-4">
               {(() => {
