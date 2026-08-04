@@ -5,6 +5,8 @@ import { Hero } from "../components/Hero";
 import { EcosystemStrip } from "../components/EcosystemStrip";
 import { SportsRow } from "../web/futbol";
 import { MoviesRow } from "../web/peliculas";
+import { AnimeRow } from "../web/anime";
+import { ANIME_CONFIG } from "../web/anime/config";
 import { Footer } from "../components/Footer";
 import { Banner } from "../components/common/Banner";
 import { IGWidgetButton } from "../components/common/IGWidgetButton";
@@ -34,8 +36,15 @@ export function Home({ navigate, siteVisits = 0 }: { navigate: (route: AppRoute)
         <EcosystemStrip />
         <SportsRow title="Deportes" />
         <MoviesRow />
+        <AnimeRow config={ANIME_CONFIG} title="Anime" sectionId="anime" />
 
         {/*
+          ManglarHentai usa el mismo componente (mismo backend, otro
+          deploy) -- "para después": ya queda listo, solo hay que
+          descomentar esta línea cuando se quiera publicar en el Home:
+
+          <AnimeRow config={HENTAI_CONFIG} title="Hentai" sectionId="hentai" />
+
           Cuando exista otro vertical real (ej. NBA), se agrega aquí
           su propio <SportsRow /> desde web/nba:
 

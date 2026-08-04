@@ -15,19 +15,18 @@
  */
 import { useFutbolWidget } from "./futbol";
 import { usePeliculasWidget } from "./peliculas";
-import { useEcosystemWidget } from "../hooks/useEcosystemWidget";
+import { useAnimeWidget, ANIME_CONFIG, HENTAI_CONFIG } from "./anime";
 import type { EcosystemWidgetResponse } from "./shared/types";
 
 export function useEcosystemWidgets(): { widgets: EcosystemWidgetResponse[]; checked: boolean } {
   const futbol = useFutbolWidget();
   const peliculas = usePeliculasWidget();
-  // ManglarAnime y ManglarHentai no tienen tarjeta propia (no hay
-  // MatchCard/MovieCard para ellos todavía), asi que usan directo el
-  // hook generico por slug (mismo que usa el Hero) en vez de un
-  // web/anime/hooks/useWidget.ts dedicado -- su /api/widget ya cumple
-  // el contrato tal cual.
-  const anime = useEcosystemWidget("manglaranime");
-  const hentai = useEcosystemWidget("manglarhentai");
+  // ManglarAnime y ManglarHentai ya tienen su propio hook dedicado
+  // (web/anime/hooks/useWidget.ts), parametrizado por config en vez de
+  // duplicado, porque ambos son el mismo backend (anime1v-api) con dos
+  // deploys distintos -- ver web/anime/config.ts.
+  const anime = useAnimeWidget(ANIME_CONFIG);
+  const hentai = useAnimeWidget(HENTAI_CONFIG);
 
   // const nba = useNbaWidget();
 

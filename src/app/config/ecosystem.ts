@@ -26,6 +26,8 @@
  * comentados. El hook ignora los que fallan, pero es mejor no ensuciar
  * el registry con cosas a medias.
  */
+import { ANIME_CONFIG, HENTAI_CONFIG } from "../web/anime/config";
+
 export interface EcosystemProjectConfig {
   /** Identificador único del proyecto (usado por los hooks de widget). */
   slug: string;
@@ -86,25 +88,27 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "manglaranime",
     label: "ManglarAnime",
-    // Backend real (anime1v-api), deployado en Azure App Service. El
-    // link al que se manda al usuario NO es esta URL -- ese viene en
-    // el campo `domain` de la respuesta del propio /api/widget (que
-    // apunta a anime.manglar.fun, ver ANIME_SITE_URL en el backend).
-    widgetUrl: "https://anime1v-api-gkagbgeqdjauchcu.canadacentral-01.azurewebsites.net/api/widget",
+    // apiBaseUrl sale de ANIME_CONFIG (web/anime/config.ts), que a su vez
+    // lee VITE_ANIME_API_URL -- un solo lugar para cambiar el backend de
+    // anime, no dos. El link al que se manda al usuario NO es esta URL
+    // -- ese viene en el campo `domain` de la respuesta del propio
+    // /api/widget (que apunta a anime.manglar.fun, ver ANIME_SITE_URL
+    // en el backend).
+    widgetUrl: `${ANIME_CONFIG.apiBaseUrl}/api/widget`,
     navLabel: "Anime",
-    anchor: "#ecosistema",
+    anchor: "#anime",
     footerLabel: "Anime · ManglarAnime",
     footerUrl: "https://anime.manglar.fun",
   },
   {
     slug: "manglarhentai",
     label: "ManglarHentai",
-    // Backend real (anime1v-api), deployado en Render -- instancia
-    // separada de la de ManglarAnime (misma app, otro deploy). El link
-    // al que se manda al usuario NO es esta URL -- ese viene en el
-    // campo `domain` de la respuesta del propio /api/widget (que apunta
-    // a hentai.manglar.fun, ver ANIME_SITE_URL en ese deploy).
-    widgetUrl: "https://anime1v-api-iynf.onrender.com/api/widget",
+    // apiBaseUrl sale de HENTAI_CONFIG (mismo backend anime1v-api,
+    // deployado aparte -- WIDGET_PROVIDER=hentaila ahí). El link al que
+    // se manda al usuario NO es esta URL -- ese viene en el campo
+    // `domain` de la respuesta del propio /api/widget (que apunta a
+    // hentai.manglar.fun, ver ANIME_SITE_URL en ese deploy).
+    widgetUrl: `${HENTAI_CONFIG.apiBaseUrl}/api/widget`,
     navLabel: "Hentai",
     anchor: "#ecosistema",
     footerLabel: "Hentai · ManglarHentai",

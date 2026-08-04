@@ -49,3 +49,21 @@ export interface EcosystemMovieItem {
   rating: string | null;
   rank?: number; // solo en el Top 10
 }
+
+/**
+ * Contrato de un item de /api/widget/top10 de anime1v-api (ManglarAnime /
+ * ManglarHentai — mismo backend, dos deploys distintos). A diferencia de
+ * EcosystemMovieItem, `id` no es un id numérico: es
+ * "anime-<base64url(url)>" (ver src/utils/animeId.js del backend), el
+ * mismo esquema que usa lib/animeId.ts en el frontend real para leer
+ * `?title=<id>` — así "Ver ahora" en el hub no necesita ningún mapeo
+ * intermedio, solo pasar el id tal cual.
+ */
+export interface EcosystemAnimeItem {
+  id: string;
+  title: string;
+  posterUrl: string;
+  backdropUrl: string;
+  type: string | null; // "Anime", "Película", "OVA"... lo que devuelva el proveedor
+  rank?: number; // solo en el Top 10
+}
