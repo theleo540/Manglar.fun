@@ -39,12 +39,6 @@ export function Home({ navigate, siteVisits = 0 }: { navigate: (route: AppRoute)
         <AnimeRow config={ANIME_CONFIG} title="Anime" sectionId="anime" />
 
         {/*
-          ManglarHentai usa el mismo componente (mismo backend, otro
-          deploy) -- "para después": ya queda listo, solo hay que
-          descomentar esta línea cuando se quiera publicar en el Home:
-
-          <AnimeRow config={HENTAI_CONFIG} title="Hentai" sectionId="hentai" />
-
           Cuando exista otro vertical real (ej. NBA), se agrega aquí
           su propio <SportsRow /> desde web/nba:
 

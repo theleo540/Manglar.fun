@@ -11,6 +11,7 @@ import { ProfileCard } from "@/components/profile/ProfileCard";
 import { CreatorCard } from "@/components/profile/CreatorCard";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { AccountEditModal } from "@/components/profile/AccountEditModal";
+import { EcosystemActivitySection } from "@/components/profile/EcosystemActivitySection";
 import { StatCard } from "@/components/cards/StatCard";
 import { cn } from "@/components/ui/utils";
 import { profileService } from "@/services/profileService";
@@ -90,6 +91,8 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
 
         <div className="space-y-6">
           <StatCard icon={<Calendar className="w-4 h-4" />} label="Miembro desde" value={profile.createdAt || "—"} />
+
+          <EcosystemActivitySection ownerEmail={user.email} />
 
           <div className="rounded-2xl border border-white/[0.08] bg-[#161B22] p-6">
             <h3 className="text-sm font-semibold text-white mb-2">Sobre este perfil</h3>
@@ -207,6 +210,8 @@ function AdminProfile() {
               ubicación) se edita desde la tarjeta de la izquierda si tienes permiso.
             </p>
           </div>
+
+          {user && profile.ownerEmail === user.email && <EcosystemActivitySection ownerEmail={user.email} />}
 
           {!user && creator && <CreatorCard profile={creator} />}
         </div>

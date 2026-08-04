@@ -14,5 +14,9 @@
 export const PELICULAS_CONFIG = {
   slug: "manglarpelis",
   label: "ManglarPelis",
-  apiBaseUrl: "https://manglarpelis-api-bfbharh2c0cueuhj.canadaeast-01.azurewebsites.net",
+  // Configurable por VITE_PELICULAS_API_URL, con fallback al deploy
+  // real actual (mismo criterio que web/futbol y web/anime).
+  apiBaseUrl:
+    import.meta.env.VITE_PELICULAS_API_URL ||
+    "https://manglarpelis-api-bfbharh2c0cueuhj.canadaeast-01.azurewebsites.net",
 };

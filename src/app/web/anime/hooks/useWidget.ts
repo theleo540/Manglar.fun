@@ -11,9 +11,8 @@ interface UseAnimeWidgetResult {
 /**
  * Pide /api/widget al backend de anime1v-api. Recibe el config como
  * parámetro (a diferencia de useFutbolWidget/usePeliculasWidget, que son
- * un vertical fijo) porque este mismo hook sirve tanto para
- * ANIME_CONFIG como para HENTAI_CONFIG — es el mismo backend, dos
- * deploys.
+ * un vertical fijo) para poder reutilizarse si en el futuro hay otro
+ * deploy del mismo backend (mismo criterio que AnimeVerticalConfig).
  */
 export function useAnimeWidget(config: AnimeVerticalConfig): UseAnimeWidgetResult {
   const [data, setData] = useState<EcosystemWidgetResponse | null>(null);

@@ -86,4 +86,7 @@ respondiendo de verdad en producción:
 No hay que adelantar nada de esto (ni datos de ejemplo, ni configs a
 medias) mientras el backend correspondiente no tenga su `/api/widget`
 real. Ver los README individuales de `web/nba/`, `web/gocut/`,
-`web/anime/` y `web/hentai/` para el detalle paso a paso de cada uno.
+`web/anime/` para el detalle paso a paso. ManglarHentai comparte el mismo
+backend que ManglarAnime (ver `config/ecosystem.ts` y `VITE_HENTAI_API_URL`)
+pero solo tiene link de nav/footer -- no tiene su propio carousel en el
+Home, así que no tiene carpeta propia en `web/`.

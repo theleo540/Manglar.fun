@@ -10,5 +10,9 @@ export const FUTBOL_CONFIG = {
   // Backend real (Azure) — aquí vive /api/widget y /api/widget/matches.
   // El link al que se manda al usuario NO es esta URL — ese viene en
   // el campo `domain` de la respuesta del propio /api/widget.
-  apiBaseUrl: "https://manglarfutbol-api-gjamc2dtapbsddak.southcentralus-01.azurewebsites.net",
+  // Configurable por VITE_FUTBOL_API_URL, con fallback al deploy real
+  // actual (mismo criterio que web/peliculas y web/anime).
+  apiBaseUrl:
+    import.meta.env.VITE_FUTBOL_API_URL ||
+    "https://manglarfutbol-api-gjamc2dtapbsddak.southcentralus-01.azurewebsites.net",
 };

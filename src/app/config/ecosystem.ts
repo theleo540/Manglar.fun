@@ -26,7 +26,19 @@
  * comentados. El hook ignora los que fallan, pero es mejor no ensuciar
  * el registry con cosas a medias.
  */
-import { ANIME_CONFIG, HENTAI_CONFIG } from "../web/anime/config";
+import { ANIME_CONFIG } from "../web/anime/config";
+import { FUTBOL_CONFIG } from "../web/futbol/config";
+import { PELICULAS_CONFIG } from "../web/peliculas/config";
+
+// ManglarHentai es un producto real y ya publicado del ecosistema
+// (nav/footer), pero no tiene un vertical propio dentro de web/ del
+// Hub -- no tiene tarjetas/carousel aquí, solo el link de nav/footer.
+// Mismo backend que ManglarAnime (anime1v-api), otro deploy -- ver
+// VITE_HENTAI_API_URL. Si algún día se quiere mostrar su carousel en
+// el Home, ahí sí se justifica un web/hentai/ real con sus propios
+// componentes (copiando el patrón de web/anime/).
+const HENTAI_API_URL =
+  import.meta.env.VITE_HENTAI_API_URL || "https://anime1v-api-iynf.onrender.com";
 
 export interface EcosystemProjectConfig {
   /** Identificador único del proyecto (usado por los hooks de widget). */
@@ -66,7 +78,10 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "manglarfutbol",
     label: "ManglarFutbol",
-    widgetUrl: "https://manglarfutbol-api-gjamc2dtapbsddak.southcentralus-01.azurewebsites.net/api/widget",
+    // widgetUrl sale de FUTBOL_CONFIG (web/futbol/config.ts), que a su
+    // vez lee VITE_FUTBOL_API_URL -- un solo lugar para cambiar el
+    // backend de fútbol, no dos.
+    widgetUrl: `${FUTBOL_CONFIG.apiBaseUrl}/api/widget`,
     navLabel: "Fútbol",
     anchor: "#ecosistema",
     footerLabel: "Fútbol · ManglarFutbol",
@@ -75,11 +90,12 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "manglarpelis",
     label: "ManglarPelis",
-    // Backend real (Azure) — aquí vive /api/widget y /api/widget/top10.
-    // El link al que se manda al usuario NO es esta URL — ese viene en
-    // el campo `domain` de la respuesta del propio /api/widget
-    // (que sí apunta a manglarpelis.manglar.fun, ver backend/.env).
-    widgetUrl: "https://manglarpelis-api-bfbharh2c0cueuhj.canadaeast-01.azurewebsites.net/api/widget",
+    // widgetUrl sale de PELICULAS_CONFIG (web/peliculas/config.ts), que
+    // a su vez lee VITE_PELICULAS_API_URL. El link al que se manda al
+    // usuario NO es esta URL — ese viene en el campo `domain` de la
+    // respuesta del propio /api/widget (que sí apunta a
+    // manglarpelis.manglar.fun, ver backend/.env).
+    widgetUrl: `${PELICULAS_CONFIG.apiBaseUrl}/api/widget`,
     navLabel: "Películas",
     anchor: "#peliculas",
     footerLabel: "Películas · ManglarPelis",
@@ -103,12 +119,12 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "manglarhentai",
     label: "ManglarHentai",
-    // apiBaseUrl sale de HENTAI_CONFIG (mismo backend anime1v-api,
+    // apiBaseUrl sale de VITE_HENTAI_API_URL (mismo backend anime1v-api,
     // deployado aparte -- WIDGET_PROVIDER=hentaila ahí). El link al que
     // se manda al usuario NO es esta URL -- ese viene en el campo
     // `domain` de la respuesta del propio /api/widget (que apunta a
     // hentai.manglar.fun, ver ANIME_SITE_URL en ese deploy).
-    widgetUrl: `${HENTAI_CONFIG.apiBaseUrl}/api/widget`,
+    widgetUrl: `${HENTAI_API_URL}/api/widget`,
     navLabel: "Hentai",
     anchor: "#ecosistema",
     footerLabel: "Hentai · ManglarHentai",

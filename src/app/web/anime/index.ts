@@ -1,4 +1,4 @@
-export { ANIME_CONFIG, HENTAI_CONFIG } from "./config";
+export { ANIME_CONFIG } from "./config";
 export type { AnimeVerticalConfig } from "./config";
 export { AnimeRow } from "./components/AnimeRow";
 export { AnimeCard } from "./components/AnimeCard";
