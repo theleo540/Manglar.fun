@@ -16,20 +16,23 @@
 import { useFutbolWidget } from "./futbol";
 import { usePeliculasWidget } from "./peliculas";
 import { useAnimeWidget, ANIME_CONFIG } from "./anime";
+import { useHentaiWidget } from "./hentai";
 import type { EcosystemWidgetResponse } from "./shared/types";
 
 export function useEcosystemWidgets(): { widgets: EcosystemWidgetResponse[]; checked: boolean } {
   const futbol = useFutbolWidget();
   const peliculas = usePeliculasWidget();
   const anime = useAnimeWidget(ANIME_CONFIG);
+  const hentai = useHentaiWidget();
 
   // const nba = useNbaWidget();
 
-  const widgets = [futbol.data, peliculas.data, anime.data /*, nba.data */].filter(
+  const widgets = [futbol.data, peliculas.data, anime.data, hentai.data /*, nba.data */].filter(
     (w): w is EcosystemWidgetResponse => w !== null
   );
 
-  const checked = !futbol.loading && !peliculas.loading && !anime.loading /* && !nba.loading */;
+  const checked =
+    !futbol.loading && !peliculas.loading && !anime.loading && !hentai.loading /* && !nba.loading */;
 
   return { widgets, checked };
 }

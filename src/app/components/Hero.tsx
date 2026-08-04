@@ -1,22 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Info } from "lucide-react";
+import { Play, Info, Star } from "lucide-react";
 import { useFutbolWidget } from "../web/futbol";
 import { FlagHalf } from "../web/shared/FlagHalf";
 import { CountdownTimer } from "../web/futbol/components/CountdownTimer";
 import { usePeliculasTop10, MoviePreviewModal } from "../web/peliculas";
-import { useAnimeTop10, AnimePreviewModal } from "../web/anime";
-import { ANIME_CONFIG, type AnimeVerticalConfig } from "../web/anime/config";
+import { useAnimeTop10, AnimePreviewModal, ANIME_CONFIG } from "../web/anime";
+import { useHentaiTop10, HentaiPreviewModal } from "../web/hentai";
 import type { EcosystemMovieItem, EcosystemAnimeItem, EcosystemWidgetResponse } from "../web/shared/types";
-
-// ManglarHentai comparte el mismo backend que ManglarAnime (anime1v-api),
-// otro deploy -- mismo criterio que config/ecosystem.ts. Solo se usa
-// acá para sumar sus tendencias al hero grande; el Hub no tiene un
-// vertical propio para él (no tiene carousel en el Home).
-const HENTAI_CONFIG: AnimeVerticalConfig = {
-  slug: "manglarhentai",
-  label: "ManglarHentai",
-  apiBaseUrl: import.meta.env.VITE_HENTAI_API_URL || "https://anime1v-api-iynf.onrender.com",
-};
 
 type Slide =
   | { kind: "futbol" }
@@ -36,9 +26,19 @@ const AUTOPLAY_MS = 7000;
  */
 export function Hero() {
   const { data: futbolData, loading: futbolLoading } = useFutbolWidget();
-  const { domain: peliculasDomain, trending: movies, checked: peliculasChecked } = usePeliculasTop10();
-  const { domain: animeDomain, trending: animeItems, checked: animeChecked } = useAnimeTop10(ANIME_CONFIG);
-  const { domain: hentaiDomain, trending: hentaiItems, checked: hentaiChecked } = useAnimeTop10(HENTAI_CONFIG);
+  const { domain: peliculasDomain, top10: peliculasTop10, trending: peliculasTrending, checked: peliculasChecked } =
+    usePeliculasTop10();
+  const { domain: animeDomain, top10: animeTop10, trending: animeTrending, checked: animeChecked } =
+    useAnimeTop10(ANIME_CONFIG);
+  const { domain: hentaiDomain, top10: hentaiTop10, trending: hentaiTrending, checked: hentaiChecked } =
+    useHentaiTop10();
+
+  // Igual que el Home real de cada vertical: el hero prioriza el Top 10
+  // (trae `rank`, así se puede mostrar el mismo badge "TOP N" que en la
+  // página real) y solo cae a "tendencias" si ese vertical no tiene Top 10.
+  const movies = peliculasTop10.length > 0 ? peliculasTop10 : peliculasTrending;
+  const animeItems = animeTop10.length > 0 ? animeTop10 : animeTrending;
+  const hentaiItems = hentaiTop10.length > 0 ? hentaiTop10 : hentaiTrending;
 
   const hasMatch = !!futbolData?.card;
 
@@ -63,7 +63,9 @@ export function Hero() {
 
   const [index, setIndex] = useState(0);
   const [previewMovie, setPreviewMovie] = useState<EcosystemMovieItem | null>(null);
-  const [previewAnime, setPreviewAnime] = useState<{ item: EcosystemAnimeItem; domain: string } | null>(null);
+  const [previewAnime, setPreviewAnime] = useState<{ item: EcosystemAnimeItem; domain: string; kind: "anime" | "hentai" } | null>(
+    null
+  );
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -151,7 +153,7 @@ export function Hero() {
             slide={slide}
             onPreview={() => {
               if (slide.kind === "movie") setPreviewMovie(slide.item);
-              else setPreviewAnime({ item: slide.item, domain: slide.domain });
+              else setPreviewAnime({ item: slide.item, domain: slide.domain, kind: slide.kind });
             }}
           />
         ) : null}
@@ -177,9 +179,12 @@ export function Hero() {
       {previewMovie && (
         <MoviePreviewModal item={previewMovie} domain={peliculasDomain} onClose={() => setPreviewMovie(null)} />
       )}
-      {previewAnime && (
-        <AnimePreviewModal item={previewAnime.item} domain={previewAnime.domain} onClose={() => setPreviewAnime(null)} />
-      )}
+      {previewAnime &&
+        (previewAnime.kind === "hentai" ? (
+          <HentaiPreviewModal item={previewAnime.item} domain={previewAnime.domain} onClose={() => setPreviewAnime(null)} />
+        ) : (
+          <AnimePreviewModal item={previewAnime.item} domain={previewAnime.domain} onClose={() => setPreviewAnime(null)} />
+        ))}
     </section>
   );
 }
@@ -263,10 +268,20 @@ function SlideContent({
   slide: Extract<Slide, { kind: "movie" | "anime" | "hentai" }>;
   onPreview: () => void;
 }) {
-  const meta = slide.kind === "movie" ? slide.item.rating : slide.item.type;
-
   return (
     <>
+      {slide.item.rank && (
+        <div className="absolute right-6 md:right-16 bottom-[220px] md:bottom-[260px] z-10 hidden sm:flex flex-col items-center select-none pointer-events-none whitespace-nowrap">
+          <span className="text-xs md:text-sm font-bold tracking-widest text-[#0be881] mb-1">TOP 10</span>
+          <span
+            className="font-['Barlow_Condensed'] font-black leading-none text-white"
+            style={{ fontSize: "clamp(4.5rem, 10vw, 8rem)", WebkitTextStroke: "2px rgba(255,255,255,0.9)", color: "#0a0a0a" }}
+          >
+            {slide.item.rank}
+          </span>
+        </div>
+      )}
+
       <span
         className="text-[#0be881] text-[11px] font-black tracking-[0.22em] uppercase mb-5 block"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -278,11 +293,24 @@ function SlideContent({
         {slide.item.title}
       </h1>
 
-      {meta && (
-        <p className="text-white/50 text-xs font-medium tracking-[0.3em] uppercase mb-8" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-          {meta}
-        </p>
-      )}
+      {/* Mismo estilo de badge que MoviePreviewModal/AnimePreviewModal
+          (bg-white/10 + rounded-sm) en vez de texto suelto en mayúsculas
+          -- así la calificación/tipo se ve como una etiqueta real, no
+          como un renglón de metadata perdido. */}
+      <div className="flex items-center gap-2 flex-wrap mb-8">
+        {slide.kind === "movie" ? (
+          slide.item.rating && (
+            <span className="flex items-center gap-1 text-xs bg-white/10 text-white/80 px-2 py-1 rounded-sm">
+              <Star size={12} className="text-[#0be881] fill-[#0be881]" />
+              {slide.item.rating}
+            </span>
+          )
+        ) : (
+          slide.item.type && (
+            <span className="text-xs bg-white/10 text-white/80 px-2 py-1 rounded-sm">{slide.item.type}</span>
+          )
+        )}
+      </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <button

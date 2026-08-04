@@ -29,16 +29,7 @@
 import { ANIME_CONFIG } from "../web/anime/config";
 import { FUTBOL_CONFIG } from "../web/futbol/config";
 import { PELICULAS_CONFIG } from "../web/peliculas/config";
-
-// ManglarHentai es un producto real y ya publicado del ecosistema
-// (nav/footer), pero no tiene un vertical propio dentro de web/ del
-// Hub -- no tiene tarjetas/carousel aquí, solo el link de nav/footer.
-// Mismo backend que ManglarAnime (anime1v-api), otro deploy -- ver
-// VITE_HENTAI_API_URL. Si algún día se quiere mostrar su carousel en
-// el Home, ahí sí se justifica un web/hentai/ real con sus propios
-// componentes (copiando el patrón de web/anime/).
-const HENTAI_API_URL =
-  import.meta.env.VITE_HENTAI_API_URL || "https://anime1v-api-iynf.onrender.com";
+import { HENTAI_CONFIG } from "../web/hentai/config";
 
 export interface EcosystemProjectConfig {
   /** Identificador único del proyecto (usado por los hooks de widget). */
@@ -119,12 +110,13 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
   {
     slug: "manglarhentai",
     label: "ManglarHentai",
-    // apiBaseUrl sale de VITE_HENTAI_API_URL (mismo backend anime1v-api,
-    // deployado aparte -- WIDGET_PROVIDER=hentaila ahí). El link al que
-    // se manda al usuario NO es esta URL -- ese viene en el campo
-    // `domain` de la respuesta del propio /api/widget (que apunta a
-    // hentai.manglar.fun, ver ANIME_SITE_URL en ese deploy).
-    widgetUrl: `${HENTAI_API_URL}/api/widget`,
+    // apiBaseUrl sale de HENTAI_CONFIG (web/hentai/config.ts), que a su
+    // vez lee VITE_HENTAI_API_URL. Mismo backend que ManglarAnime
+    // (anime1v-api), otro deploy -- WIDGET_PROVIDER=hentaila ahí. El
+    // link al que se manda al usuario NO es esta URL -- ese viene en
+    // el campo `domain` de la respuesta del propio /api/widget (que
+    // apunta a hentai.manglar.fun, ver ANIME_SITE_URL en ese deploy).
+    widgetUrl: `${HENTAI_CONFIG.apiBaseUrl}/api/widget`,
     navLabel: "Hentai",
     anchor: "#ecosistema",
     footerLabel: "Hentai · ManglarHentai",
