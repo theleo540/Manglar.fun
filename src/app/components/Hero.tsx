@@ -118,7 +118,16 @@ export function Hero() {
                 key={`${s.kind}-${s.item.id}`}
                 src={s.item.backdropUrl}
                 alt={s.item.title}
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out"
+                // blur-sm + scale-105 solo para anime/hentai: mismo
+                // tratamiento que sus propios Hero.tsx -- ese backdrop
+                // viene en baja calidad y al estirarse a todo el ancho
+                // del hero se nota pixelado; el blur lo disimula (el
+                // scale-105 evita que se vea el borde blureado). Películas
+                // (TMDB) sí trae backdrop de buena calidad, así que se
+                // queda nítido, igual que en el Hero de ManglarPelis.
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+                  s.kind === "anime" || s.kind === "hentai" ? "blur-sm scale-105" : ""
+                }`}
                 style={{ opacity: i === index ? 1 : 0 }}
               />
             );
