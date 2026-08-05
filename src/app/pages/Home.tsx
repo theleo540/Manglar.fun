@@ -7,6 +7,7 @@ import { SportsRow } from "../web/futbol";
 import { MoviesRow } from "../web/peliculas";
 import { AnimeRow } from "../web/anime";
 import { ANIME_CONFIG } from "../web/anime/config";
+import { HENTAI_CONFIG } from "../web/hentai/config";
 import { Footer } from "../components/Footer";
 import { Banner } from "../components/common/Banner";
 import { IGWidgetButton } from "../components/common/IGWidgetButton";
@@ -37,6 +38,7 @@ export function Home({ navigate, siteVisits = 0 }: { navigate: (route: AppRoute)
         <SportsRow title="Deportes" />
         <MoviesRow />
         <AnimeRow config={ANIME_CONFIG} title="Anime" sectionId="anime" />
+        <AnimeRow config={HENTAI_CONFIG} title="Hentai" sectionId="hentai" />
 
         {/*
           Cuando exista otro vertical real (ej. NBA), se agrega aquí

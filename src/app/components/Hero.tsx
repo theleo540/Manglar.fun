@@ -26,12 +26,9 @@ const AUTOPLAY_MS = 7000;
  */
 export function Hero() {
   const { data: futbolData, loading: futbolLoading } = useFutbolWidget();
-  const { domain: peliculasDomain, top10: peliculasTop10, trending: peliculasTrending, checked: peliculasChecked } =
-    usePeliculasTop10();
-  const { domain: animeDomain, top10: animeTop10, trending: animeTrending, checked: animeChecked } =
-    useAnimeTop10(ANIME_CONFIG);
-  const { domain: hentaiDomain, top10: hentaiTop10, trending: hentaiTrending, checked: hentaiChecked } =
-    useHentaiTop10();
+  const { domain: peliculasDomain, top10: peliculasTop10, trending: peliculasTrending, checked: peliculasChecked } = usePeliculasTop10();
+  const { domain: animeDomain, top10: animeTop10, trending: animeTrending, checked: animeChecked } = useAnimeTop10(ANIME_CONFIG);
+  const { domain: hentaiDomain, top10: hentaiTop10, trending: hentaiTrending, checked: hentaiChecked } = useHentaiTop10();
 
   // Igual que el Home real de cada vertical: el hero prioriza el Top 10
   // (trae `rank`, así se puede mostrar el mismo badge "TOP N" que en la
@@ -63,9 +60,7 @@ export function Hero() {
 
   const [index, setIndex] = useState(0);
   const [previewMovie, setPreviewMovie] = useState<EcosystemMovieItem | null>(null);
-  const [previewAnime, setPreviewAnime] = useState<{ item: EcosystemAnimeItem; domain: string; kind: "anime" | "hentai" } | null>(
-    null
-  );
+  const [previewAnime, setPreviewAnime] = useState<{ item: EcosystemAnimeItem; domain: string; kind: "anime" | "hentai" } | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -109,8 +104,18 @@ export function Hero() {
       <div className="absolute inset-0">
         {slide.kind === "futbol" && futbolData?.card ? (
           <div className="absolute inset-0 opacity-60 bg-black">
-            <FlagHalf image={futbolData.card.homeCrest} name={futbolData.card.home} clipPath="polygon(0 0, 100% 0, 0 100%)" emojiAlign="left" />
-            <FlagHalf image={futbolData.card.awayCrest} name={futbolData.card.away} clipPath="polygon(100% 0, 100% 100%, 0 100%)" emojiAlign="right" />
+            <FlagHalf
+              image={futbolData.card.homeCrest}
+              name={futbolData.card.home}
+              clipPath="polygon(0 0, 100% 0, 0 100%)"
+              emojiAlign="left"
+            />
+            <FlagHalf
+              image={futbolData.card.awayCrest}
+              name={futbolData.card.away}
+              clipPath="polygon(100% 0, 100% 100%, 0 100%)"
+              emojiAlign="right"
+            />
           </div>
         ) : (
           slides.map((s, i) => {
@@ -176,9 +181,7 @@ export function Hero() {
         )}
       </div>
 
-      {previewMovie && (
-        <MoviePreviewModal item={previewMovie} domain={peliculasDomain} onClose={() => setPreviewMovie(null)} />
-      )}
+      {previewMovie && <MoviePreviewModal item={previewMovie} domain={peliculasDomain} onClose={() => setPreviewMovie(null)} />}
       {previewAnime &&
         (previewAnime.kind === "hentai" ? (
           <HentaiPreviewModal item={previewAnime.item} domain={previewAnime.domain} onClose={() => setPreviewAnime(null)} />
@@ -204,7 +207,10 @@ function FutbolContent({ data }: { data: EcosystemWidgetResponse }) {
   return (
     <>
       <div className="flex items-center gap-3 mb-5">
-        <span className="text-[#0be881] text-[11px] font-black tracking-[0.22em] uppercase" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+        <span
+          className="text-[#0be881] text-[11px] font-black tracking-[0.22em] uppercase"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+        >
           MANGLARFUTBOL
         </span>
         {isLive && (
@@ -218,10 +224,16 @@ function FutbolContent({ data }: { data: EcosystemWidgetResponse }) {
         )}
       </div>
 
-      <h1 className="text-white text-5xl md:text-7xl font-black leading-none tracking-tight mb-3 uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+      <h1
+        className="text-white text-5xl md:text-7xl font-black leading-none tracking-tight mb-3 uppercase"
+        style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+      >
         {match.home} vs {match.away}
       </h1>
-      <p className="text-white/50 text-xs font-medium tracking-[0.3em] uppercase mb-5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+      <p
+        className="text-white/50 text-xs font-medium tracking-[0.3em] uppercase mb-5"
+        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+      >
         {meta}
       </p>
 
@@ -261,27 +273,9 @@ const KIND_LABEL: Record<"movie" | "anime" | "hentai", string> = {
   hentai: "MANGLARHENTAI",
 };
 
-function SlideContent({
-  slide,
-  onPreview,
-}: {
-  slide: Extract<Slide, { kind: "movie" | "anime" | "hentai" }>;
-  onPreview: () => void;
-}) {
+function SlideContent({ slide, onPreview }: { slide: Extract<Slide, { kind: "movie" | "anime" | "hentai" }>; onPreview: () => void }) {
   return (
     <>
-      {slide.item.rank && (
-        <div className="absolute right-6 md:right-16 bottom-[220px] md:bottom-[260px] z-10 hidden sm:flex flex-col items-center select-none pointer-events-none whitespace-nowrap">
-          <span className="text-xs md:text-sm font-bold tracking-widest text-[#0be881] mb-1">TOP 10</span>
-          <span
-            className="font-['Barlow_Condensed'] font-black leading-none text-white"
-            style={{ fontSize: "clamp(4.5rem, 10vw, 8rem)", WebkitTextStroke: "2px rgba(255,255,255,0.9)", color: "#0a0a0a" }}
-          >
-            {slide.item.rank}
-          </span>
-        </div>
-      )}
-
       <span
         className="text-[#0be881] text-[11px] font-black tracking-[0.22em] uppercase mb-5 block"
         style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -289,7 +283,10 @@ function SlideContent({
         {KIND_LABEL[slide.kind]}
       </span>
 
-      <h1 className="text-white text-5xl md:text-7xl font-black leading-none tracking-tight mb-3 uppercase" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+      <h1
+        className="text-white text-5xl md:text-7xl font-black leading-none tracking-tight mb-3 uppercase"
+        style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+      >
         {slide.item.title}
       </h1>
 
@@ -298,18 +295,14 @@ function SlideContent({
           -- así la calificación/tipo se ve como una etiqueta real, no
           como un renglón de metadata perdido. */}
       <div className="flex items-center gap-2 flex-wrap mb-8">
-        {slide.kind === "movie" ? (
-          slide.item.rating && (
-            <span className="flex items-center gap-1 text-xs bg-white/10 text-white/80 px-2 py-1 rounded-sm">
-              <Star size={12} className="text-[#0be881] fill-[#0be881]" />
-              {slide.item.rating}
-            </span>
-          )
-        ) : (
-          slide.item.type && (
-            <span className="text-xs bg-white/10 text-white/80 px-2 py-1 rounded-sm">{slide.item.type}</span>
-          )
-        )}
+        {slide.kind === "movie"
+          ? slide.item.rating && (
+              <span className="flex items-center gap-1 text-xs bg-white/10 text-white/80 px-2 py-1 rounded-sm">
+                <Star size={12} className="text-[#0be881] fill-[#0be881]" />
+                {slide.item.rating}
+              </span>
+            )
+          : slide.item.type && <span className="text-xs bg-white/10 text-white/80 px-2 py-1 rounded-sm">{slide.item.type}</span>}
       </div>
 
       <div className="flex flex-wrap items-center gap-3">

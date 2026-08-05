@@ -118,7 +118,7 @@ export const ECOSYSTEM_PROJECTS: EcosystemProjectConfig[] = [
     // apunta a hentai.manglar.fun, ver ANIME_SITE_URL en ese deploy).
     widgetUrl: `${HENTAI_CONFIG.apiBaseUrl}/api/widget`,
     navLabel: "Hentai",
-    anchor: "#ecosistema",
+    anchor: "#hentai",
     footerLabel: "Hentai · ManglarHentai",
     footerUrl: "https://hentai.manglar.fun",
   },

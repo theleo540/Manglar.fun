@@ -34,10 +34,14 @@ export function AnimePreviewModal({
         style={{ animation: "cardExpand 0.2s ease-out" }}
       >
         <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+          {/* blur-sm + scale-105: mismo tratamiento que el Hero -- el
+              backdrop de anime1v-api (ManglarAnime/ManglarHentai) viene
+              en baja calidad y se nota pixelado al estirarse; el padre
+              ya tiene overflow-hidden así que el scale no se sale. */}
           <img
             src={item.backdropUrl || item.posterUrl}
             alt={item.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover blur-sm scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#181818] via-[#181818]/10 to-transparent" />
 
