@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Shield, Calendar } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useAdmin } from "@/hooks/useAdmin";
 import { AUTHORIZED_ADMINS } from "@/config/auth";
@@ -11,8 +10,7 @@ import { ProfileCard } from "@/components/profile/ProfileCard";
 import { CreatorCard } from "@/components/profile/CreatorCard";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { AccountEditModal } from "@/components/profile/AccountEditModal";
-import { EcosystemActivitySection } from "@/components/profile/EcosystemActivitySection";
-import { StatCard } from "@/components/cards/StatCard";
+import { EcosystemActivitySection, GocutActivitySection } from "@/components/profile/EcosystemActivitySection";
 import { cn } from "@/components/ui/utils";
 import { profileService } from "@/services/profileService";
 import { AVATAR_PRESETS } from "@/constants/avatarPresets";
@@ -21,10 +19,11 @@ import type { Profile as ProfileData } from "@/types/profile";
 function LoadingProfile() {
   return (
     <div className="min-h-screen px-6 pt-24 pb-16 max-w-5xl mx-auto">
-      <div className="grid lg:grid-cols-[320px_1fr] gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         <div className="rounded-2xl border border-white/[0.08] bg-[#161B22] h-[420px] animate-pulse" />
-        <div className="h-32 rounded-2xl border border-white/[0.08] bg-[#161B22] animate-pulse" />
+        <div className="hidden lg:block rounded-2xl border border-white/[0.08] bg-[#161B22] h-[280px] animate-pulse" />
       </div>
+      <div className="h-64 rounded-2xl border border-white/[0.08] bg-[#161B22] animate-pulse mt-8" />
     </div>
   );
 }
@@ -83,26 +82,27 @@ function OwnAccountProfile({ user }: { user: { name: string; email: string; avat
 
   if (loading || !profile) return <LoadingProfile />;
 
+  // El super-admin ya está viendo su propio perfil como dueño de la
+  // cuenta — no tiene sentido repetir su misma tarjeta a la derecha.
+  const showCreator = creator && creator.ownerEmail.toLowerCase() !== user.email.toLowerCase();
+
   return (
     <div className="min-h-screen px-6 pt-24 pb-16 max-w-5xl mx-auto">
       <BackToOrigin />
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid lg:grid-cols-[320px_1fr] gap-8">
-        <ProfileCard profile={profile} canEdit onEdit={() => setEditing(true)} />
+      <h1 className="text-xl font-bold text-white mb-6">Perfil</h1>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+          <ProfileCard profile={profile} canEdit onEdit={() => setEditing(true)} />
+          {showCreator && creator && (
+            <div className="lg:sticky lg:top-24">
+              <CreatorCard profile={creator} />
+            </div>
+          )}
+        </div>
 
-        <div className="space-y-6">
-          <StatCard icon={<Calendar className="w-4 h-4" />} label="Miembro desde" value={profile.createdAt || "—"} />
-
+        <div className="space-y-6 min-w-0">
           <EcosystemActivitySection ownerEmail={user.email} />
-
-          <div className="rounded-2xl border border-white/[0.08] bg-[#161B22] p-6">
-            <h3 className="text-sm font-semibold text-white mb-2">Sobre este perfil</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Este es tu perfil de usuario. Desde "Editar" puedes actualizar tu nombre, correo, contraseña y elegir un
-              ícono de perfil.
-            </p>
-          </div>
-
-          {creator && <CreatorCard profile={creator} />}
+          <GocutActivitySection ownerEmail={user.email} />
         </div>
       </motion.div>
 
@@ -150,6 +150,12 @@ function AdminProfile() {
 
   const canEdit = !!profile && !!user && user.email === profile.ownerEmail && hasPermission(PERMISSIONS.EDIT_PROFILE);
 
+  // Rol del DUEÑO del perfil mostrado (no del usuario que está mirando) —
+  // así el badge en la tarjeta siempre refleja a quién pertenece.
+  const adminRoleKey = profile
+    ? (AUTHORIZED_ADMINS[profile.ownerEmail.toLowerCase() as keyof typeof AUTHORIZED_ADMINS] as keyof typeof ROLE_COLORS | undefined)
+    : undefined;
+
   // Perfil del super-admin (creador del ecosistema). Si alguien entra a
   // /profile SIN sesión iniciada, igual debe ver esta tarjeta para saber
   // quién está detrás del sitio y poder escribirle por Instagram.
@@ -158,12 +164,15 @@ function AdminProfile() {
 
   if (loading || !profile) return <LoadingProfile />;
 
+  const showCreator = !user && !!creator;
+
   return (
     <div className="min-h-screen px-6 pt-24 pb-16 max-w-5xl mx-auto">
       <BackToOrigin />
+      <h1 className="text-xl font-bold text-white mb-6">Perfil</h1>
       {/* Selector de perfil — solo se muestra si hay más de uno */}
       {profiles.length > 1 && (
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6 flex-wrap">
           {profiles.map((p) => (
             <button
               key={p.id}
@@ -181,39 +190,32 @@ function AdminProfile() {
         </div>
       )}
 
-      <motion.div key={profile.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid lg:grid-cols-[320px_1fr] gap-8">
-        <ProfileCard profile={profile} canEdit={canEdit} onEdit={() => setEditing(true)} />
-
-        <div className="space-y-6">
-          {user && (
-            <div className="grid grid-cols-2 gap-4">
-              {(() => {
-                const roleKey = user.role as keyof typeof ROLE_COLORS;
-                const c = ROLE_COLORS[roleKey];
-                return (
-                  <StatCard
-                    icon={<Shield className="w-4 h-4" />}
-                    label="Rol"
-                    value={ROLE_LABELS[roleKey as keyof typeof ROLE_LABELS] ?? user.role}
-                    sub={c ? undefined : undefined}
-                  />
-                );
-              })()}
-              <StatCard icon={<Calendar className="w-4 h-4" />} label="Miembro desde" value={profile.createdAt || "—"} />
+      <motion.div key={profile.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+          <ProfileCard
+            profile={profile}
+            canEdit={canEdit}
+            onEdit={() => setEditing(true)}
+            roleBadge={
+              adminRoleKey && ROLE_COLORS[adminRoleKey]
+                ? { label: ROLE_LABELS[adminRoleKey], ...ROLE_COLORS[adminRoleKey] }
+                : undefined
+            }
+          />
+          {showCreator && creator && (
+            <div className="lg:sticky lg:top-24">
+              <CreatorCard profile={creator} />
             </div>
           )}
+        </div>
 
-          <div className="rounded-2xl border border-white/[0.08] bg-[#161B22] p-6">
-            <h3 className="text-sm font-semibold text-white mb-2">Sobre este perfil</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Este perfil representa a un administrador del ecosistema Manglar. La información pública (bio, redes,
-              ubicación) se edita desde la tarjeta de la izquierda si tienes permiso.
-            </p>
-          </div>
-
-          {user && profile.ownerEmail === user.email && <EcosystemActivitySection ownerEmail={user.email} />}
-
-          {!user && creator && <CreatorCard profile={creator} />}
+        <div className="space-y-6 min-w-0">
+          {user && profile.ownerEmail === user.email && (
+            <>
+              <EcosystemActivitySection ownerEmail={user.email} />
+              <GocutActivitySection ownerEmail={user.email} />
+            </>
+          )}
         </div>
       </motion.div>
 

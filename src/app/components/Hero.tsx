@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Info, Star } from "lucide-react";
+import { Play, Info, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useFutbolWidget } from "../web/futbol";
 import { FlagHalf } from "../web/shared/FlagHalf";
 import { CountdownTimer } from "../web/futbol/components/CountdownTimer";
@@ -77,6 +77,11 @@ export function Hero() {
 
   const allChecked = !futbolLoading && peliculasChecked && animeChecked && hentaiChecked;
   const slide = slides[index];
+
+  function goTo(dir: 1 | -1) {
+    if (slides.length <= 1) return;
+    setIndex((i) => (i + dir + slides.length) % slides.length);
+  }
 
   // Todavía no sabemos si hay algo que mostrar -- evita el parpadeo de
   // "no hay nada" mientras los 4 verticales terminan de responder.
@@ -188,6 +193,27 @@ export function Hero() {
         ) : (
           <AnimePreviewModal item={previewAnime.item} domain={previewAnime.domain} onClose={() => setPreviewAnime(null)} />
         ))}
+
+      {slides.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={() => goTo(-1)}
+            aria-label="Diapositiva anterior"
+            className="hidden md:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/35 hover:bg-black/60 border border-white/15 text-white backdrop-blur-sm transition-all active:scale-90"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            type="button"
+            onClick={() => goTo(1)}
+            aria-label="Siguiente diapositiva"
+            className="hidden md:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/35 hover:bg-black/60 border border-white/15 text-white backdrop-blur-sm transition-all active:scale-90"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
     </section>
   );
 }
